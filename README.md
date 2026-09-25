@@ -13,3 +13,4 @@ sudo ./scripts/install-agent-rhel.sh --central http://CENTRAL:3000 --name rhel-0
 ## Agent install (AIX)
 ./scripts/install-agent-aix.sh --central http://CENTRAL:3000 --name aix-01 --token UUID# sngpl-monitor
 
+
