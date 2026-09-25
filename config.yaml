@@ -1,0 +1,169 @@
+database:
+  path: /ords/sngpl-monitor/data/metrics.db
+  retention_days: 3
+auth:
+  admin_user: admin
+  admin_password_hash: $2b$12$A8TxaCAa3qFh7zpD9JUbCOnTIt2v7bxibWhJ6ht5LJ1DvArhuI0Z.
+  jwt_secret: i+lRB6l+WqXE1NKl3YEzYbWSbNHCeDXS+CpZNsf6qE20pKTBdJ79d7fW+lgNI0Ls
+  jwt_expire_minutes: 43200
+frontend:
+  dir: /ords/sngpl-monitor/frontend
+thresholds:
+  cpu_pct: 90
+  ram_pct: 95
+  disk_pct: 90
+cors:
+  allow_origins:
+  - '*'
+servers:
+- name: aix-erptest
+  token: cb6bf0ec-39c7-4eba-ac07-17fdbc8b5b92
+  group: AIX
+  services:
+  - name: Oracle Listener
+    type: process
+    check: tnslsnr
+  - name: Oracle Database
+    type: process
+    check: pmon
+  - name: Oracle EBS
+    type: process
+    check: FNDLIBR
+  - name: SSH
+    type: aix_src
+    check: sshd
+  - name: Cron
+    type: aix_src
+    check: cron
+- name: aix-ocsecc
+  token: 6132a93d-7de5-4c7d-8456-612ddb17e3f3
+  group: AIX
+  services:
+  - name: Oracle Listener
+    type: process
+    check: tnslsnr
+  - name: Oracle Database
+    type: process
+    check: pmon
+  - name: Oracle EBS
+    type: process
+    check: FNDLIBR
+  - name: SSH
+    type: aix_src
+    check: sshd
+  - name: Cron
+    type: aix_src
+    check: cron
+- name: aix-devebs
+  token: 4a4a6189-281c-40e5-bae4-0970c4172f1c
+  group: AIX
+  services:
+  - name: Oracle Listener
+    type: process
+    check: tnslsnr
+  - name: Oracle Database
+    type: process
+    check: pmon
+  - name: Oracle EBS
+    type: process
+    check: FNDLIBR
+  - name: SSH
+    type: aix_src
+    check: sshd
+  - name: Cron
+    type: aix_src
+    check: cron
+- name: rho-oraclepaf-01
+  token: dd7e682a-9533-405b-b182-dc89a2c4d4d0
+  group: RHEL
+  ip: 172.22.27.16
+  services:
+  - name: Oracle Listener
+    type: process
+    check: tnslsnr
+  - name: Oracle Database
+    type: process
+    check: pmon
+  - name: SSH
+    type: systemd
+    check: sshd
+  - name: Firewalld
+    type: systemd
+    check: firewalld
+  - name: Cron
+    type: systemd
+    check: crond
+- name: rdr-oracleaidb-02
+  token: f026acc8-9844-4cd9-acd1-4443753e95e4
+  group: RHEL
+  ip: 172.21.110.133
+  services:
+  - name: Oracle Listener
+    type: process
+    check: tnslsnr
+  - name: Oracle Database
+    type: process
+    check: pmon
+  - name: Nginx
+    type: systemd
+    check: nginx
+  - name: SSH
+    type: systemd
+    check: sshd
+  - name: Firewalld
+    type: systemd
+    check: firewalld
+- name: rdr-ebs-01
+  token: 4fdf443a-2b2f-4fa5-8a9e-621ce4ccce6c
+  group: RHEL
+  ip: 172.21.110.134
+  services:
+  - name: WebLogic
+    type: process
+    check: weblogic
+  - name: SSH
+    type: systemd
+    check: sshd
+  - name: Firewalld
+    type: systemd
+    check: firewalld
+- name: dho-ebs-01
+  token: ef82a3e0-adb1-4baf-a15b-a5991bf32918
+  group: RHEL
+  ip: 172.22.26.24
+  services:
+  - name: Oracle Listener
+    type: process
+    check: tnslsnr
+  - name: Oracle Database
+    type: process
+    check: pmon
+  - name: SSH
+    type: systemd
+    check: sshd
+  - name: Firewalld
+    type: systemd
+    check: firewalld
+  - name: Cron
+    type: systemd
+    check: crond
+- name: rdr-ebsintegration-01
+  token: aaaa1111-bbbb-2222-cccc-333344445555
+  group: RHEL
+  ip: 172.21.110.135
+  services:
+  - name: ORDS
+    type: process
+    check: ords
+  - name: MongoDB
+    type: systemd
+    check: mongod
+  - name: SSH
+    type: systemd
+    check: sshd
+  - name: Firewalld
+    type: systemd
+    check: firewalld
+  - name: SNGLP Monitor
+    type: process
+    check: uvicorn

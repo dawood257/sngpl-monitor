@@ -1,0 +1,14 @@
+[Unit]
+Description=SNGLP Monitoring Agent
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/opt/sngpl-agent/sngpl-agent.sh
+Restart=always
+RestartSec=10
+StandardOutput=append:/var/log/sngpl-agent.log
+StandardError=append:/var/log/sngpl-agent.log
+
+[Install]
+WantedBy=multi-user.target

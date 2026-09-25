@@ -1,0 +1,22 @@
+#!/bin/sh
+case "$1" in
+  start)
+    if [ -f /var/run/sngpl-agent.pid ] && kill -0 $(cat /var/run/sngpl-agent.pid) 2>/dev/null; then
+      echo "Already running"; exit 0
+    fi
+    nohup /opt/sngpl-agent/sngpl-agent.sh >/dev/null 2>&1 &
+    echo $! > /var/run/sngpl-agent.pid
+    echo "sngpl-agent started (pid $(cat /var/run/sngpl-agent.pid))"
+    ;;
+  stop)
+    [ -f /var/run/sngpl-agent.pid ] && kill $(cat /var/run/sngpl-agent.pid) 2>/dev/null
+    rm -f /var/run/sngpl-agent.pid
+    echo "stopped"
+    ;;
+  restart) $0 stop; sleep 2; $0 start;;
+  status)
+    [ -f /var/run/sngpl-agent.pid ] && kill -0 $(cat /var/run/sngpl-agent.pid) 2>/dev/null \
+      && echo "running" || echo "stopped"
+    ;;
+  *) echo "Usage: $0 {start|stop|restart|status}"; exit 1;;
+esac

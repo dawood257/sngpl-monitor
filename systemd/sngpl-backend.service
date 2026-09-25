@@ -1,0 +1,13 @@
+[Unit]
+Description=SNGLP Monitor Backend
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/ords/sngpl-monitor
+Environment="SNGLP_CONFIG=/ords/sngpl-monitor/config.yaml"
+ExecStart=/ords/sngpl-monitor/venv/bin/uvicorn backend.main:app --host 0.0.0.0 --port 3000
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

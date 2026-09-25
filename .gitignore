@@ -1,0 +1,118 @@
+# ═══════════════════════════════════════════════════
+#  SNGPL Monitoring — Git Ignore
+# ═══════════════════════════════════════════════════
+
+# ─── SECRETS (NEVER COMMIT) ───
+data/agent_tokens.json
+.sngpl-oracle-creds
+agent.conf
+*.env
+.env
+certs/
+data/*.key
+data/*.crt
+data/*.pem
+
+# ─── RUNTIME DATA ───
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+data/*.log
+data/backend.pid
+data/backups/
+data/exports/
+
+# ─── DEPLOY ARTIFACTS ───
+frontend/*-v*.sh
+frontend/temp-*.sh
+frontend/agent-new-*.sh
+frontend/*-agent-new*.sh
+frontend/aix-agent-*.sh
+frontend/linux-agent-*.sh
+dist-files/agent.sh.bak
+dist-files/agent-aix.sh.bak
+
+# ─── TEMP ───
+*.tmp
+*.swp
+*~
+.DS_Store
+/tmp/*
+data/tmp/
+
+# ─── PYTHON ───
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+
+# ─── NODE / FRONTEND ───
+node_modules/
+package-lock.json
+npm-debug.log*
+
+# ─── LOGS ───
+*.log
+logs/
+
+# ─── EDITOR ───
+.vscode/
+.idea/
+*.sublime-*
+
+# ─── OS ───
+Thumbs.db
+desktop.ini
+
+# ─── LARGE FILES / AUTO-GENERATED ───
+data/exports/
+data/archive/
+data/old/
+*.tar.gz
+*.zip
+*.tgz
+backup-*.tar.gz
+
+# ─── If there are any large media/cache ───
+frontend/*.png
+frontend/*.jpg
+!frontend/logo.png
+cache/
+.cache/
+
+# ─── BACKUPS (LARGE) ───
+backups/
+backup/
+*.bak
+*.old
+data/*.bak
+data/*.old
+data/*.before_*
+data/index.html.*.bak
+data/backend.pid.*.bak
+
+# ─── SIZE-BASED ───
+*.db.before_*
+*.db.old
+metrics.db.*
+
+# ─── BACKUP / TEMP FILES (all patterns) ───
+*.bak
+*.bak.*
+*.bak_*
+*.BEFORE_*
+*.before_*
+config.yaml.bak*
+dist-files/*.bak*
+frontend/*.bak*
+frontend/*.BEFORE_*
+backend/*.bak*
+backend/*.BEFORE_*
+FILENAME
+*.orig
+*.rej

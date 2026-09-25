@@ -1,0 +1,431 @@
+/* ══════════════════════════════════════════════════════
+   Dashboard Visual Enhancements — v3 (High Impact)
+   ══════════════════════════════════════════════════════ */
+
+/* ────── 1. Animated gradient background ────── */
+#app {
+  background:
+    radial-gradient(circle at 15% 10%, rgba(37,131,223,.12), transparent 38%),
+    radial-gradient(circle at 85% 85%, rgba(124,92,255,.10), transparent 35%),
+    linear-gradient(-45deg, #0a1120, #0f1729, #0c1728, #0a1120);
+  background-size: 100% 100%, 100% 100%, 400% 400%;
+  animation: dashboardGradient 25s ease infinite;
+  min-height: 100vh;
+  position: relative;
+}
+@keyframes dashboardGradient {
+  0%, 100% { background-position: 0% 50%, 100% 50%, 0% 50%; }
+  50%      { background-position: 100% 50%, 0% 50%, 100% 50%; }
+}
+
+/* ────── 2. Grid overlay ────── */
+#app::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(80,140,220,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(80,140,220,.035) 1px, transparent 1px);
+  background-size: 60px 60px;
+  z-index: 0;
+}
+#app > * { position: relative; z-index: 1; }
+
+/* ────── 3. Header animated glow ────── */
+header {
+  border-bottom: 1px solid rgba(78,150,255,.20) !important;
+  position: relative;
+  backdrop-filter: blur(8px);
+  background: rgba(2,6,23,.75) !important;
+}
+header::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #38bdf8, #a78bfa, transparent);
+  background-size: 200% 100%;
+  animation: headerGlow 6s linear infinite;
+  opacity: .75;
+  pointer-events: none;
+}
+@keyframes headerGlow {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* ────── 4. LIVE dot stronger ────── */
+.live-dot {
+  width: 9px !important;
+  height: 9px !important;
+  animation: livePulseBig 1.4s infinite !important;
+}
+@keyframes livePulseBig {
+  0%   { box-shadow: 0 0 0 0 rgba(34,197,94,.7), 0 0 10px rgba(34,197,94,.7); }
+  70%  { box-shadow: 0 0 0 10px rgba(34,197,94,0), 0 0 10px rgba(34,197,94,.7); }
+  100% { box-shadow: 0 0 0 0 rgba(34,197,94,0), 0 0 10px rgba(34,197,94,.7); }
+}
+
+/* ────── 5. KPI CARDS — bigger, bolder ────── */
+.kpi {
+  transition: all .25s cubic-bezier(.4,0,.2,1) !important;
+  position: relative;
+  overflow: hidden;
+  padding: 20px !important;
+}
+.kpi::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.05), transparent);
+  transition: left .7s ease;
+  pointer-events: none;
+}
+.kpi:hover::after { left: 100%; }
+.kpi:hover {
+  transform: translateY(-5px) !important;
+}
+.kpi.total:hover { box-shadow: 0 20px 45px rgba(0,0,0,.4), 0 0 30px rgba(56,189,248,.3) !important; }
+.kpi.ok:hover    { box-shadow: 0 20px 45px rgba(0,0,0,.4), 0 0 30px rgba(34,197,94,.3) !important; }
+.kpi.warn:hover  { box-shadow: 0 20px 45px rgba(0,0,0,.4), 0 0 30px rgba(245,158,11,.3) !important; }
+.kpi.bad:hover   { box-shadow: 0 20px 45px rgba(0,0,0,.4), 0 0 30px rgba(239,68,68,.3) !important; }
+.kpi.svc:hover   { box-shadow: 0 20px 45px rgba(0,0,0,.4), 0 0 30px rgba(167,139,250,.3) !important; }
+
+/* KPI value — bigger + gradient animated */
+.kpi-value {
+  font-size: 42px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  letter-spacing: -1.5px !important;
+}
+.kpi.total .kpi-value,
+.kpi.svc .kpi-value {
+  background: linear-gradient(90deg, #38bdf8, #a78bfa, #38bdf8);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientText 4s linear infinite;
+}
+.kpi.ok .kpi-value { color: #22c55e; text-shadow: 0 0 20px rgba(34,197,94,.4); }
+.kpi.warn .kpi-value { color: #f59e0b; text-shadow: 0 0 20px rgba(245,158,11,.4); }
+.kpi.bad .kpi-value { 
+  color: #ef4444; 
+  text-shadow: 0 0 22px rgba(239,68,68,.55);
+  animation: criticalValueGlow 2s ease-in-out infinite;
+}
+@keyframes criticalValueGlow {
+  0%, 100% { text-shadow: 0 0 14px rgba(239,68,68,.35); }
+  50%      { text-shadow: 0 0 30px rgba(239,68,68,.75); }
+}
+@keyframes gradientText {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* KPI label — bolder + accent */
+.kpi-label {
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.3px !important;
+}
+.kpi-icon {
+  font-size: 16px !important;
+  filter: drop-shadow(0 0 6px currentColor);
+}
+
+/* ────── 6. SERVER CARDS — top colored bar ────── */
+.card {
+  transition: all .25s cubic-bezier(.4,0,.2,1) !important;
+  position: relative;
+  overflow: hidden;
+  padding-top: 20px !important;
+}
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--ok), transparent);
+  opacity: .65;
+}
+.card.ok::before    { background: linear-gradient(90deg, transparent, #22c55e, transparent); }
+.card.warn::before  { background: linear-gradient(90deg, transparent, #f59e0b, transparent); }
+.card.bad::before   { 
+  background: linear-gradient(90deg, transparent, #ef4444, transparent);
+  animation: topBarShimmer 2s linear infinite;
+  background-size: 200% 100%;
+}
+.card.off::before   { background: linear-gradient(90deg, transparent, #64748b, transparent); }
+@keyframes topBarShimmer {
+  0%   { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.card:hover {
+  transform: translateY(-4px) !important;
+}
+.card.ok:hover   { box-shadow: 0 16px 40px rgba(0,0,0,.35), 0 0 25px rgba(34,197,94,.2) !important; }
+.card.warn:hover { box-shadow: 0 16px 40px rgba(0,0,0,.35), 0 0 25px rgba(245,158,11,.2) !important; }
+.card.bad:hover  { box-shadow: 0 16px 40px rgba(0,0,0,.35), 0 0 28px rgba(239,68,68,.25) !important; }
+
+/* CRITICAL card pulse */
+.card.bad {
+  border-left-width: 4px !important;
+  animation: criticalPulse 2.4s ease-in-out infinite;
+}
+@keyframes criticalPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+  50%      { box-shadow: 0 0 30px 2px rgba(239,68,68,.28); }
+}
+
+/* Server name — bolder */
+.card h3 {
+  font-size: 15px !important;
+  letter-spacing: -.2px;
+}
+.status-tag {
+  font-size: 10px !important;
+  padding: 3px 8px !important;
+  letter-spacing: .8px;
+}
+
+/* ────── 7. METRIC rows — better hierarchy ────── */
+.card .row {
+  font-size: 12px !important;
+  padding: 4px 0 !important;
+}
+.card .row b {
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  letter-spacing: -.3px;
+}
+
+/* ────── 8. PROGRESS BARS — thicker + shimmer ────── */
+.bar-mini,
+.bar {
+  height: 7px !important;
+  border-radius: 4px !important;
+  background: rgba(15,23,42,.9) !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.4);
+}
+.bar-mini > i,
+.bar > i {
+  border-radius: 4px !important;
+  transition: width .8s cubic-bezier(.4,0,.2,1) !important;
+  position: relative;
+  overflow: hidden;
+}
+.bar-mini > i::after,
+.bar > i::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent);
+  animation: barShimmer 2.5s linear infinite;
+}
+@keyframes barShimmer {
+  0%   { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* OK bar glow */
+.bar-mini.ok > i  { box-shadow: 0 0 8px rgba(34,197,94,.4); }
+.bar-mini.warn > i { box-shadow: 0 0 8px rgba(245,158,11,.4); }
+.bar-mini.bad > i  { 
+  box-shadow: 0 0 12px rgba(239,68,68,.6);
+  animation: barShimmer 2.5s linear infinite, badBarPulse 2s ease-in-out infinite;
+}
+@keyframes badBarPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(239,68,68,.4); }
+  50%      { box-shadow: 0 0 18px rgba(239,68,68,.75); }
+}
+
+/* ────── 9. AVAILABILITY bar — gradient flow ────── */
+.avail-fill {
+  background: linear-gradient(90deg, #16a34a, #22c55e, #4ade80, #22c55e, #16a34a) !important;
+  background-size: 200% 100%;
+  animation: availBarShimmer 3s linear infinite !important;
+  box-shadow: 0 0 14px rgba(34,197,94,.5);
+}
+@keyframes availBarShimmer {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+.avail-value {
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  text-shadow: 0 0 14px rgba(34,197,94,.5);
+}
+
+/* ────── 10. SECTION TITLES — decorative ────── */
+.health-title,
+.servers-title,
+.incident-title {
+  font-weight: 800 !important;
+  letter-spacing: 1.8px !important;
+  position: relative;
+}
+.health-title::after,
+.servers-title::after {
+  content: "";
+  display: block;
+  height: 1px;
+  margin-top: 8px;
+  background: linear-gradient(90deg, currentColor, transparent);
+  opacity: .3;
+}
+
+/* ────── 11. INCIDENT items — hover slide ────── */
+.incident-item {
+  transition: all .25s ease !important;
+  position: relative;
+}
+.incident-item:hover {
+  transform: translateX(6px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.3), 0 0 20px rgba(239,68,68,.15);
+  border-left-width: 5px !important;
+}
+
+/* ────── 12. AI BUTTON — full animation ────── */
+.ai-btn {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #7c3aed, #a78bfa, #c4b5fd, #7c3aed) !important;
+  background-size: 300% 300% !important;
+  animation: aiButtonBg 8s ease infinite, aiButtonPulse 3s ease-in-out infinite !important;
+  font-weight: 800 !important;
+}
+@keyframes aiButtonBg {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+@keyframes aiButtonPulse {
+  0%, 100% { box-shadow: 0 4px 14px rgba(139,92,246,.35); }
+  50%      { box-shadow: 0 4px 26px rgba(139,92,246,.65), 0 0 36px rgba(167,139,250,.3); }
+}
+.ai-btn::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent);
+  animation: aiShimmer 3s linear infinite;
+  pointer-events: none;
+}
+@keyframes aiShimmer {
+  0%   { left: -100%; }
+  100% { left: 100%; }
+}
+.ai-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.15);
+}
+.ai-btn .ai-icon {
+  animation: aiIconSpin 6s linear infinite;
+}
+@keyframes aiIconSpin {
+  0%, 90%, 100% { transform: rotate(0deg); }
+  95%           { transform: rotate(15deg); }
+}
+
+/* ────── 13. BELL badge pulse ────── */
+.bell-count {
+  animation: bellPulse 2s ease-in-out infinite;
+}
+@keyframes bellPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,.7); }
+  50%      { box-shadow: 0 0 0 6px rgba(239,68,68,0), 0 0 14px rgba(239,68,68,.5); }
+}
+
+/* ────── 14. Filters/chips — glow ────── */
+.chip {
+  transition: all .2s ease !important;
+}
+.chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(56,189,248,.2);
+}
+.chip.active {
+  box-shadow: 0 0 18px rgba(56,189,248,.4);
+}
+
+/* ────── 15. Scrollbar ────── */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+/* ────── 16. Reduced motion ────── */
+@media (prefers-reduced-motion: reduce) {
+  #app, #app *, #app *::before, #app *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   SPECS TAB — Full Machine Details
+   ══════════════════════════════════════════════════ */
+
+.spec-group{margin-bottom:20px}
+.spec-group-title{font-size:11px;font-weight:800;letter-spacing:1.5px;color:#38bdf8;text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #334155;display:flex;align-items:center;gap:8px}
+.spec-group-title .icon{font-size:14px;filter:drop-shadow(0 0 6px currentColor)}
+
+.spec-table{display:grid;grid-template-columns:1fr 1fr;gap:8px 28px}
+@media(max-width:800px){.spec-table{grid-template-columns:1fr}}
+
+.spec-row{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px dashed #1e293b;font-size:12.5px}
+.spec-row:last-child{border-bottom:0}
+.spec-key{color:#94a3b8;font-weight:500;flex-shrink:0;padding-right:10px}
+.spec-val{color:#e2e8f0;font-weight:700;font-family:'JetBrains Mono','Consolas',monospace;text-align:right;word-break:break-word;font-size:12px}
+.spec-val.dim{color:#64748b;font-weight:500;font-style:italic}
+.spec-val.blue{color:#38bdf8}
+.spec-val.green{color:#22c55e}
+.spec-val.amber{color:#f59e0b}
+
+/* Disk table */
+.spec-disk-table{width:100%;border-collapse:collapse;font-size:12px}
+.spec-disk-table th{text-align:left;padding:8px 10px;color:#94a3b8;font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;border-bottom:1px solid #334155}
+.spec-disk-table td{padding:9px 10px;border-bottom:1px dashed #1e293b;color:#e2e8f0;font-family:'JetBrains Mono','Consolas',monospace;font-size:11.5px}
+.spec-disk-table tr:last-child td{border-bottom:0}
+.spec-disk-table tr:hover td{background:rgba(56,189,248,.04)}
+.disk-bar-mini{display:inline-block;width:60px;height:6px;background:#0a0e18;border-radius:3px;overflow:hidden;vertical-align:middle;margin-left:6px}
+.disk-bar-mini > i{display:block;height:100%;background:#22c55e}
+.disk-bar-mini.warn > i{background:#f59e0b}
+.disk-bar-mini.bad > i{background:#ef4444}
+
+/* Network table */
+.spec-net-table{width:100%;border-collapse:collapse;font-size:12px}
+.spec-net-table th{text-align:left;padding:8px 10px;color:#94a3b8;font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;border-bottom:1px solid #334155}
+.spec-net-table td{padding:9px 10px;border-bottom:1px dashed #1e293b;color:#e2e8f0;font-family:'JetBrains Mono','Consolas',monospace;font-size:11.5px}
+.spec-net-table tr:last-child td{border-bottom:0}
+
+/* User card grid */
+.spec-user-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.spec-user-card{background:linear-gradient(180deg,#131c2e 0%,#0f172a 100%);border:1px solid #334155;border-radius:8px;padding:12px;display:flex;align-items:center;gap:10px}
+.spec-user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px;flex-shrink:0}
+.spec-user-info{flex:1;min-width:0}
+.spec-user-name{font-family:'JetBrains Mono','Consolas',monospace;font-weight:700;font-size:12px;color:#e2e8f0;overflow:hidden;text-overflow:ellipsis}
+.spec-user-role{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.spec-user-badge{font-size:9px;font-weight:800;padding:2px 6px;border-radius:3px;text-transform:uppercase}
+.spec-user-badge.active{background:#14532d;color:#86efac}
+.spec-user-badge.sys{background:#4c1d95;color:#ddd6fe}
+.spec-user-badge.idle{background:#334155;color:#94a3b8}
+
+/* App card grid */
+.spec-app-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.spec-app-card{background:linear-gradient(180deg,#131c2e 0%,#0f172a 100%);border:1px solid #334155;border-left:3px solid #22c55e;border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.spec-app-card.down{border-left-color:#ef4444}
+.spec-app-card.unknown{border-left-color:#64748b}
+.spec-app-icon{font-size:22px;flex-shrink:0;filter:drop-shadow(0 0 8px currentColor)}
+.spec-app-info{flex:1;min-width:0}
+.spec-app-name{font-weight:700;font-size:12.5px;color:#e2e8f0}
+.spec-app-status{font-size:10px;font-weight:800;margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+.spec-app-status.running{color:#22c55e}
+.spec-app-status.down{color:#ef4444}
+.spec-app-status.unknown{color:#94a3b8}

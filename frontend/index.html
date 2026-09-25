@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#0f172a"/>
+<title>SNGPL Monitor</title>
+<style>
+:root{
+  --bg:#0f172a;--bg2:#020617;--card:#1e293b;--card2:#243044;
+  --fg:#e2e8f0;--muted:#94a3b8;--dim:#64748b;
+  --ok:#22c55e;--warn:#eab308;--bad:#ef4444;--off:#64748b;
+  --acc:#38bdf8;--border:#334155;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px;line-height:1.4}
+
+/* ───── HEADER ───── */
+header{background:var(--bg2);padding:12px 24px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.brand{display:flex;align-items:center;gap:12px;font-size:16px;font-weight:700;color:var(--acc);letter-spacing:.3px}
+.brand-mark{width:22px;height:22px;background:linear-gradient(135deg,#38bdf8,#0ea5e9);border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:#0f172a;font-size:12px;font-weight:900}
+.spacer{flex:1}
+.pill{padding:4px 10px;border-radius:99px;background:#1e293b;font-size:11px;font-weight:600;border:1px solid var(--border);display:inline-flex;align-items:center;gap:6px}
+.pill.live{color:var(--ok);border-color:#14532d;background:#0f2417}
+.pill.recon{color:var(--warn);border-color:#713f12;background:#231507}
+.live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(34,197,94,.7);animation:pulse 1.6s infinite}
+@keyframes pulse{0%{transform:scale(.9);box-shadow:0 0 0 0 rgba(34,197,94,.6)}70%{transform:scale(1);box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{transform:scale(.9);box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+.bell{position:relative;cursor:pointer;padding:6px 10px;border-radius:6px;background:#1e293b;border:1px solid var(--border);font-size:14px;transition:.15s}
+.bell:hover{background:#334155}
+.bell-count{position:absolute;top:-6px;right:-6px;background:var(--bad);color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:99px;min-width:18px;text-align:center}
+button.logout{background:#334155;color:var(--fg);border:0;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:.15s}
+button.logout:hover{background:#475569}
+
+/* ───── MODERN LOGIN PAGE ───── */
+#login{min-height:100vh;background:#05070d;font-family:system-ui,-apple-system,sans-serif;display:flex}
+#login.hidden{display:none}
+.login-split{display:grid;grid-template-columns:1fr 1fr;width:100%;min-height:100vh}
+
+.login-visual{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:60px;background:linear-gradient(-45deg,#07101f,#0b1e3a,#102a52,#071426);background-size:300% 300%;animation:loginGradient 18s ease infinite}
+.login-visual::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(59,130,246,.25) 0%,transparent 40%),radial-gradient(circle at 80% 70%,rgba(96,165,250,.15) 0%,transparent 45%);pointer-events:none}
+.login-visual::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(59,130,246,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.06) 1px,transparent 1px);background-size:44px 44px;pointer-events:none}
+@keyframes loginGradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@media (prefers-reduced-motion: reduce){.login-visual{animation:none}}
+.login-visual-content{position:relative;z-index:2;max-width:480px;color:#fff}
+.login-brand-mark{width:60px;height:60px;background:linear-gradient(135deg,#3b82f6,#60a5fa);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#fff;margin-bottom:26px;box-shadow:0 10px 40px rgba(59,130,246,.5)}
+.login-visual-content h1{font-size:34px;font-weight:800;letter-spacing:-.5px;margin:0 0 14px;line-height:1.15;color:#fff}
+.login-visual-content .login-tagline{font-size:15px;line-height:1.6;color:#94a3b8;margin:0 0 34px}
+.login-features{display:flex;flex-direction:column;gap:14px;margin-bottom:40px}
+.login-feature{display:flex;align-items:center;gap:12px;font-size:14px;color:#cbd5e1}
+.login-feature::before{content:"✓";display:inline-flex;width:22px;height:22px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);border-radius:50%;align-items:center;justify-content:center;color:#22c55e;font-size:11px;font-weight:900;flex-shrink:0}
+.login-stats{display:flex;gap:32px;padding-top:28px;border-top:1px solid rgba(59,130,246,.15)}
+.login-stat{display:flex;flex-direction:column;gap:4px}
+.login-stat-val{font-size:22px;font-weight:800;color:#60a5fa}
+.login-stat-label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1.2px;font-weight:600}
+
+.login-form-side{display:flex;align-items:center;justify-content:center;padding:60px 40px;background:radial-gradient(circle at 30% 30%,rgba(37,131,223,.08),transparent 50%),#05070d;position:relative}
+.login-form-wrapper{width:100%;max-width:420px}
+.login-form-header{margin-bottom:38px}
+.login-form-header h2{font-size:32px;font-weight:800;color:#fff;margin:0 0 10px;letter-spacing:-.4px}
+.login-form-header p{font-size:14px;color:#64748b;margin:0;line-height:1.5}
+
+.login-form-group{margin-bottom:22px}
+.login-form-group label{display:block;font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:9px}
+.login-form-group input{width:100%;padding:14px 16px;background:#0a0e18;border:1px solid #1e293b;color:#e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:.2s;box-sizing:border-box}
+.login-form-group input:focus{border-color:#3b82f6;background:#0d1424;box-shadow:0 0 0 4px rgba(59,130,246,.12)}
+.login-form-group input::placeholder{color:#475569}
+
+.login-remember{display:flex;align-items:center;gap:10px;margin-bottom:26px;font-size:13px;color:#94a3b8;cursor:pointer}
+.login-remember input{width:16px;height:16px;accent-color:#3b82f6;cursor:pointer;margin:0}
+
+.login-submit{width:100%;padding:15px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:0;border-radius:10px;cursor:pointer;font-weight:700;font-size:15px;font-family:inherit;transition:.25s cubic-bezier(.4,0,.2,1);box-shadow:0 8px 24px rgba(59,130,246,.35),0 0 30px rgba(59,130,246,.15);letter-spacing:.3px;position:relative;overflow:hidden}
+.login-submit:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(59,130,246,.5),0 0 40px rgba(59,130,246,.35);filter:brightness(1.1)}
+.login-submit:active{transform:translateY(0)}
+
+#loginErr{color:#fca5a5;margin-top:14px;font-size:13px;text-align:center;min-height:0;padding:0}
+#loginErr:not(:empty){padding:10px;background:rgba(239,68,68,.08);border-radius:8px;border:1px solid rgba(239,68,68,.2)}
+
+.login-footer{margin-top:36px;padding-top:24px;border-top:1px solid #1e293b;text-align:center;font-size:11px;color:#475569;letter-spacing:.5px}
+
+@media(max-width:900px){
+  .login-split{grid-template-columns:1fr}
+  .login-visual{display:none}
+  .login-form-side{padding:40px 24px;min-height:100vh}
+}
+
+/* ───── MAIN ───── */
+main{padding:20px 24px;max-width:1600px;margin:0 auto}
+
+/* ───── SYSTEM HEALTH SECTION ───── */
+.health-section{background:linear-gradient(180deg,#131c2e 0%,#0f172a 100%);border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin-bottom:18px;box-shadow:0 4px 20px rgba(0,0,0,.25)}
+.health-title{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
+.health-sub{font-size:12px;color:var(--dim);margin-bottom:18px}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--dim);border-radius:10px;padding:14px 16px;cursor:pointer;transition:transform .15s,background .15s;position:relative;overflow:hidden}
+.kpi:hover{transform:translateY(-2px);background:var(--card2)}
+.kpi.active{background:var(--card2);box-shadow:0 0 0 2px var(--acc) inset}
+.kpi-label{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.kpi-icon{font-size:13px;line-height:1}
+.kpi-value{font-size:34px;font-weight:800;line-height:1;transition:color .25s;font-variant-numeric:tabular-nums}
+.kpi-desc{font-size:11px;color:var(--dim);margin-top:6px}
+
+.kpi.total{border-left-color:var(--acc)} .kpi.total .kpi-value{color:var(--acc)}
+.kpi.ok{border-left-color:var(--ok)} .kpi.ok .kpi-value{color:var(--ok)}
+.kpi.warn{border-left-color:var(--warn)} .kpi.warn .kpi-value{color:var(--warn)}
+.kpi.bad{border-left-color:var(--bad)} .kpi.bad .kpi-value{color:var(--bad)}
+.kpi.off{border-left-color:var(--off)}
+.kpi.svc{border-left-color:#a78bfa}
+.kpi.svc .kpi-value{color:#a78bfa} .kpi.off .kpi-value{color:var(--muted)}
+
+/* ───── AVAILABILITY BAR ───── */
+.avail{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 18px}
+.avail-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.avail-title{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+.avail-value{font-size:20px;font-weight:700;color:var(--ok);font-variant-numeric:tabular-nums}
+.avail-sub{font-size:11px;color:var(--dim)}
+.avail-bar{height:8px;background:#0f172a;border-radius:4px;overflow:hidden;border:1px solid var(--border);position:relative}
+.avail-fill{height:100%;background:linear-gradient(90deg,#22c55e,#4ade80);border-radius:4px;transition:width .4s ease}
+.avail-fill.warn{background:linear-gradient(90deg,#ca8a04,#facc15)}
+.avail-fill.bad{background:linear-gradient(90deg,#b91c1c,#ef4444)}
+
+/* ───── SERVERS SECTION ───── */
+.servers-title{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin:22px 0 10px;display:flex;align-items:center;gap:10px}
+.servers-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+
+.filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.chip{padding:7px 14px;background:var(--card);border-radius:99px;cursor:pointer;font-size:12px;border:1px solid var(--border);color:var(--muted);font-weight:600;transition:.15s;user-select:none}
+.chip:hover{background:var(--card2);color:var(--fg)}
+.chip.active{background:var(--acc);color:#0f172a;border-color:var(--acc)}
+.chip .cnt{opacity:.7;margin-left:4px;font-weight:700}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+
+/* ───── SERVER CARD ───── */
+.card{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--ok);border-radius:10px;padding:14px 16px;cursor:pointer;transition:transform .15s,background .15s,box-shadow .15s;position:relative}
+.card:hover{transform:translateY(-2px);background:var(--card2);box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.card.warn{border-left-color:var(--warn)}
+.card.bad{border-left-color:var(--bad)}
+.card.off{border-left-color:var(--off);opacity:.75}
+.card h3{margin:0 0 8px;font-size:14px;display:flex;align-items:center;gap:8px;font-weight:700}
+.card h3 .status-tag{font-size:10px;font-weight:800;letter-spacing:.5px;padding:2px 7px;border-radius:4px;background:#334155;color:#cbd5e1}
+.card.ok h3 .status-tag{background:#14532d;color:#86efac}
+.card.warn h3 .status-tag{background:#713f12;color:#fde047}
+.card.bad h3 .status-tag{background:#7f1d1d;color:#fca5a5}
+.card.off h3 .status-tag{background:#334155;color:#94a3b8}
+.os-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;background:#334155;color:#cbd5e1;margin-left:auto}
+
+.row{display:flex;justify-content:space-between;padding:3px 0;font-size:12px;color:var(--muted)}
+.row b{color:var(--fg);font-weight:700;font-variant-numeric:tabular-nums}
+.bar{height:5px;background:#0f172a;border-radius:3px;overflow:hidden;margin-top:4px}
+.bar>i{display:block;height:100%;background:var(--ok);transition:width .35s ease,background .35s ease}
+.bar.warn>i{background:var(--warn)}
+.bar.bad>i{background:var(--bad)}
+
+/* ───── DETAIL VIEW ───── */
+.detail{display:none}
+.detail.active{display:block}
+.back{background:var(--card);border:1px solid var(--border);padding:8px 14px;border-radius:8px;cursor:pointer;margin-bottom:16px;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--fg);transition:.15s}
+.back:hover{background:var(--card2)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border)}
+th{color:var(--muted);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+td{font-variant-numeric:tabular-nums}
+
+/* ───── SKELETON ───── */
+.skel{background:linear-gradient(90deg,#1e293b 0%,#334155 50%,#1e293b 100%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px;height:34px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ───── ERROR STATE ───── */
+.error-banner{background:#7f1d1d;color:#fecaca;padding:10px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;display:none;align-items:center;gap:10px;border:1px solid #991b1b}
+.error-banner.show{display:flex}
+.error-banner button{background:#fecaca;color:#7f1d1d;border:0;padding:5px 12px;border-radius:6px;cursor:pointer;font-weight:700;font-size:12px;margin-left:auto}
+
+/* ───── RESPONSIVE ───── */
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){
+  header{padding:10px 14px;gap:10px}
+  .brand{font-size:14px}
+  main{padding:14px}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .kpi-value{font-size:26px}
+  .grid{grid-template-columns:1fr}
+  .health-section{padding:16px}
+}
+
+
+}
+
+/* ────── INCIDENT CENTER (Phase 3B) ────── */
+.incident-section{background:linear-gradient(180deg,#1a0e0e 0%,#0f172a 100%);border:1px solid #7f1d1d;border-radius:14px;padding:20px 22px;margin-bottom:18px;box-shadow:0 4px 20px rgba(127,29,29,.15)}
+.incident-section.clean{background:linear-gradient(180deg,#0d1f15 0%,#0f172a 100%);border-color:#14532d;box-shadow:0 4px 20px rgba(20,83,45,.15)}
+.incident-title{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
+.incident-sub{font-size:12px;color:var(--dim);margin-bottom:16px}
+.incident-list{display:flex;flex-direction:column;gap:8px}
+.incident-item{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--bad);border-radius:8px;padding:12px 16px;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:14px}
+.incident-item:hover{background:var(--card2);transform:translateX(2px)}
+.incident-item.warn{border-left-color:var(--warn)}
+.incident-item.info{border-left-color:var(--acc)}
+.incident-item.resolved{border-left-color:var(--ok);opacity:.7}
+.inc-icon{font-size:20px;flex-shrink:0}
+.inc-body{flex:1;min-width:0}
+.inc-title{font-size:13px;font-weight:700;color:var(--fg);margin-bottom:2px}
+.inc-meta{font-size:11px;color:var(--muted)}
+.inc-time{font-size:11px;color:var(--dim);flex-shrink:0;font-variant-numeric:tabular-nums}
+.inc-clean{text-align:center;padding:14px;color:var(--ok);font-size:13px;font-weight:600}
+.inc-view-all{font-size:11px;font-weight:600;color:var(--acc);cursor:pointer;text-transform:none;letter-spacing:0}
+.inc-view-all:hover{color:var(--acc2);text-decoration:underline}
+
+/* ────── FULL INCIDENT CENTER OVERLAY ────── */
+.inc-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;backdrop-filter:blur(4px)}
+.inc-overlay.open{display:flex;align-items:center;justify-content:center;padding:24px}
+.inc-modal{background:var(--bg);width:100%;max-width:1100px;max-height:90vh;border-radius:14px;border:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.7)}
+.inc-modal-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;background:var(--bg2)}
+.inc-modal-head h2{font-size:15px;font-weight:700;color:var(--fg);margin:0;text-transform:uppercase;letter-spacing:1px}
+.inc-close{margin-left:auto;background:var(--card);border:1px solid var(--border);color:var(--fg);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:13px}
+.inc-close:hover{background:var(--card2)}
+.inc-modal-body{flex:1;overflow-y:auto;padding:16px 20px}
+.inc-tabs{display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:0}
+.inc-tab{padding:10px 16px;background:transparent;border:0;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit}
+.inc-tab:hover{color:var(--fg)}
+.inc-tab.active{color:var(--acc);border-bottom-color:var(--acc)}
+.inc-filters{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.inc-search{flex:1;min-width:200px;padding:9px 12px;background:var(--card);border:1px solid var(--border);color:var(--fg);border-radius:6px;font-size:13px;font-family:inherit;outline:none}
+.inc-search:focus{border-color:var(--acc)}
+.inc-select{padding:9px 12px;background:var(--card);border:1px solid var(--border);color:var(--fg);border-radius:6px;font-size:13px;font-family:inherit;cursor:pointer}
+.inc-list-full{display:flex;flex-direction:column;gap:8px}
+.inc-row{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--bad);border-radius:8px;padding:14px 16px;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:14px}
+.inc-row:hover{background:var(--card2);transform:translateX(3px)}
+.inc-row.warn{border-left-color:var(--warn)}
+.inc-row.info{border-left-color:var(--acc)}
+.inc-row.resolved{border-left-color:var(--ok);opacity:.7}
+.inc-row-icon{font-size:22px;flex-shrink:0;width:32px;text-align:center}
+.inc-row-body{flex:1;min-width:0}
+.inc-row-title{font-size:13px;font-weight:700;color:var(--fg);margin-bottom:4px}
+.inc-row-meta{font-size:11px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.inc-row-meta .sev-tag{font-size:9px;font-weight:800;padding:2px 6px;border-radius:3px;background:#7f1d1d;color:#fca5a5;text-transform:uppercase}
+.inc-row-meta .sev-tag.warn{background:#78350f;color:#fde047}
+.inc-row-meta .sev-tag.info{background:#1e3a8a;color:#93c5fd}
+.inc-row-meta .ack-tag{font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:#1e40af;color:#93c5fd}
+.inc-row-time{font-size:11px;color:var(--dim);flex-shrink:0;font-variant-numeric:tabular-nums;text-align:right}
+.inc-empty{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px}
+.inc-empty .ok-icon{font-size:48px;color:var(--ok);display:block;margin-bottom:12px}
+
+/* ────── INCIDENT DETAIL PANEL ────── */
+.inc-detail{display:none;position:fixed;top:0;right:0;bottom:0;width:100%;max-width:640px;background:var(--bg);border-left:1px solid var(--border);z-index:1100;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.6)}
+.inc-detail.open{display:flex}
+.inc-detail-head{padding:16px 20px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;align-items:center;gap:12px}
+.inc-detail-head h3{margin:0;font-size:14px;font-weight:700;color:var(--fg)}
+.inc-detail-body{flex:1;overflow-y:auto;padding:20px}
+.inc-detail-badge{display:inline-block;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px}
+.inc-detail-badge.critical{background:#7f1d1d;color:#fca5a5}
+.inc-detail-badge.warning{background:#78350f;color:#fde047}
+.inc-detail-badge.info{background:#1e3a8a;color:#93c5fd}
+.inc-detail-badge.resolved{background:#14532d;color:#86efac}
+.inc-detail-title{font-size:20px;font-weight:800;color:#fff;margin:0 0 6px}
+.inc-detail-sub{font-size:13px;color:var(--muted);margin-bottom:22px}
+.inc-kv{display:grid;grid-template-columns:130px 1fr;gap:10px 16px;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:18px;font-size:12px}
+.inc-kv-key{color:var(--muted);font-weight:600}
+.inc-kv-val{color:var(--fg);font-weight:500;font-family:'JetBrains Mono',Consolas,monospace}
+.inc-actions{display:flex;gap:10px;margin-bottom:22px}
+.inc-btn{padding:9px 18px;border:0;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+.inc-btn-ack{background:var(--acc);color:#0f172a}
+.inc-btn-ack:hover{background:var(--acc2)}
+.inc-btn-ack:disabled{background:#475569;color:#94a3b8;cursor:not-allowed}
+.inc-btn-close{background:var(--card);color:var(--fg);border:1px solid var(--border)}
+.inc-btn-close:hover{background:var(--card2)}
+.inc-timeline-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:12px}
+.inc-timeline{position:relative;padding-left:24px}
+.inc-timeline::before{content:'';position:absolute;left:6px;top:6px;bottom:6px;width:1px;background:var(--border)}
+.inc-event{position:relative;padding:8px 0 12px}
+.inc-event::before{content:'';position:absolute;left:-24px;top:12px;width:9px;height:9px;border-radius:50%;background:var(--acc);border:2px solid var(--bg)}
+.inc-event.resolved::before{background:var(--ok)}
+.inc-event.created::before{background:var(--bad)}
+.inc-event-time{font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums;margin-bottom:2px}
+.inc-event-text{font-size:12px;color:var(--fg)}
+.inc-event-type{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-right:6px}
+
+/* ────── NOTIFICATIONS (Phase 3C) ────── */
+.toast-container{position:fixed;top:70px;right:20px;z-index:2000;display:flex;flex-direction:column;gap:10px;max-width:380px;pointer-events:none}
+.toast{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--bad);border-radius:10px;padding:14px 16px;box-shadow:0 10px 40px rgba(0,0,0,.5);animation:toastIn .3s ease;pointer-events:auto;cursor:pointer}
+.toast.warn{border-left-color:var(--warn)}
+.toast.info{border-left-color:var(--acc)}
+.toast.ok{border-left-color:var(--ok)}
+@keyframes toastIn{from{transform:translateX(400px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes toastOut{from{transform:translateX(0);opacity:1}to{transform:translateX(400px);opacity:0}}
+.toast.dismiss{animation:toastOut .3s ease forwards}
+.toast-head{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--bad);margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.toast.warn .toast-head{color:var(--warn)}
+.toast.info .toast-head{color:var(--acc)}
+.toast.ok .toast-head{color:var(--ok)}
+.toast-title{font-size:13px;font-weight:700;color:var(--fg);margin-bottom:4px;line-height:1.3}
+.toast-meta{font-size:11px;color:var(--muted)}
+.toast-time{font-size:10px;color:var(--dim);margin-top:6px}
+.toast-actions{display:flex;gap:8px;margin-top:10px}
+.toast-btn{background:transparent;border:1px solid var(--border);color:var(--fg);padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit}
+.toast-btn:hover{background:var(--card2)}
+
+/* Mute toggle */
+.mute-btn{background:var(--card);border:1px solid var(--border);color:var(--fg);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:14px;transition:.15s;font-family:inherit}
+.mute-btn:hover{background:var(--card2)}
+.mute-btn.muted{background:#7f1d1d;color:#fca5a5;border-color:#991b1b}
+
+/* ────── AI INSIGHTS (Phase 4) ────── */
+.ai-btn{background:linear-gradient(135deg,#8b5cf6,#a78bfa);color:#fff;border:0;padding:8px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+.ai-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.ai-btn:disabled{background:#475569;cursor:not-allowed;transform:none;opacity:.7}
+.ai-spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:aiSpin .8s linear infinite}
+@keyframes aiSpin{to{transform:rotate(360deg)}}
+.ai-panel{background:linear-gradient(180deg,#1a1428 0%,#0f172a 100%);border:1px solid #7c3aed;border-radius:12px;padding:18px 20px;margin:14px 0;position:relative;box-shadow:0 4px 20px rgba(124,58,237,.15)}
+.ai-panel-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.ai-panel-title{font-size:11px;font-weight:800;letter-spacing:1.5px;color:#a78bfa;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.ai-model-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;background:#4c1d95;color:#ddd6fe;margin-left:auto}
+.ai-panel-close{background:transparent;border:1px solid #4c1d95;color:#c4b5fd;width:24px;height:24px;border-radius:5px;cursor:pointer;font-size:14px;line-height:1;font-family:inherit;padding:0}
+.ai-panel-close:hover{background:#4c1d95}
+.ai-content{font-size:13px;line-height:1.65;color:var(--fg);white-space:pre-wrap;font-family:inherit}
+.ai-loading{font-size:13px;color:#a78bfa;display:flex;align-items:center;gap:10px;padding:14px 0}
+.ai-error{color:#fca5a5;font-size:12px;padding:10px;background:#7f1d1d20;border-left:3px solid #ef4444;border-radius:4px}
+.ai-actions-row{margin:14px 0;display:flex;gap:10px;flex-wrap:wrap}
+.ai-footer{font-size:10px;color:var(--dim);margin-top:12px;padding-top:10px;border-top:1px solid #1f2937;display:flex;align-items:center;gap:8px}
+
+/* ────── LOGIN VISUAL LAYERS ────── */
+.login-visual-content{position:relative;z-index:3}
+#login-particles{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.login-watermark{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:520px;max-width:80%;opacity:0.05;z-index:1;pointer-events:none;user-select:none}
+.login-server-art{position:absolute;right:35px;bottom:60px;width:140px;opacity:0.14;z-index:1;pointer-events:none}
+.login-server-art .led{animation:ledBlink 2.4s ease-in-out infinite}
+.login-server-art .led.d1{animation-delay:0s}
+.login-server-art .led.d2{animation-delay:.6s}
+.login-server-art .led.d3{animation-delay:1.2s}
+.login-server-art .led.d4{animation-delay:1.8s}
+@keyframes ledBlink{0%,100%{opacity:.3}50%{opacity:1}}
+</style>
+<link rel="stylesheet" href="/dashboard-visuals.css?v=3"/>
+</head>
+<body>
+
+<!-- ══════════ LOGIN ══════════ -->
+<div id="login">
+  <div class="login-split">
+    <div class="login-visual">
+      <div id="login-particles"></div>
+      
+      <svg class="login-watermark" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
+        <text x="200" y="90" font-family="system-ui,-apple-system,sans-serif" font-size="92" font-weight="900" text-anchor="middle" fill="#60a5fa" letter-spacing="-2">SNGPL</text>
+      </svg>
+      
+      <svg class="login-server-art" viewBox="0 0 140 200" xmlns="http://www.w3.org/2000/svg">
+        <g fill="none" stroke="#60a5fa" stroke-width="1.2">
+          <!-- Server 1 -->
+          <rect x="10" y="10" width="120" height="50" rx="4" fill="rgba(59,130,246,0.08)"/>
+          <line x1="20" y1="25" x2="35" y2="25" stroke-width="2"/>
+          <line x1="20" y1="35" x2="45" y2="35" stroke-width="2"/>
+          <circle cx="115" cy="25" r="2.5" fill="#4ade80" stroke="none" class="led d1"/>
+          <circle cx="115" cy="35" r="2.5" fill="#22c55e" stroke="none" class="led d2"/>
+          <!-- Server 2 -->
+          <rect x="10" y="70" width="120" height="50" rx="4" fill="rgba(59,130,246,0.08)"/>
+          <line x1="20" y1="85" x2="35" y2="85" stroke-width="2"/>
+          <line x1="20" y1="95" x2="45" y2="95" stroke-width="2"/>
+          <circle cx="115" cy="85" r="2.5" fill="#4ade80" stroke="none" class="led d3"/>
+          <circle cx="115" cy="95" r="2.5" fill="#22c55e" stroke="none" class="led d4"/>
+          <!-- Server 3 -->
+          <rect x="10" y="130" width="120" height="50" rx="4" fill="rgba(59,130,246,0.08)"/>
+          <line x1="20" y1="145" x2="35" y2="145" stroke-width="2"/>
+          <line x1="20" y1="155" x2="45" y2="155" stroke-width="2"/>
+          <circle cx="115" cy="145" r="2.5" fill="#4ade80" stroke="none" class="led d1"/>
+          <circle cx="115" cy="155" r="2.5" fill="#22c55e" stroke="none" class="led d2"/>
+        </g>
+      </svg>
+      
+      <div class="login-visual-content">
+        <div class="login-brand-mark">◈</div>
+        <h1>Infrastructure Monitoring</h1>
+        <p class="login-tagline">Real-time visibility across your RHEL and AIX server fleet. Centralized monitoring, historical analytics, and AI-powered insights.</p>
+        <div class="login-features">
+          <div class="login-feature">Live server metrics</div>
+          <div class="login-feature">Incident detection &amp; alerts</div>
+          <div class="login-feature">AI-powered analysis</div>
+        </div>
+        <div class="login-stats">
+          <div class="login-stat"><div class="login-stat-val">8</div><div class="login-stat-label">Servers</div></div>
+          <div class="login-stat"><div class="login-stat-val">38+</div><div class="login-stat-label">Services</div></div>
+          <div class="login-stat"><div class="login-stat-val">24/7</div><div class="login-stat-label">Uptime</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="login-form-side">
+      <div class="login-form-wrapper">
+        <div class="login-form-header">
+          <h2>Sign in</h2>
+          <p>Welcome back. Access your monitoring dashboard.</p>
+        </div>
+        <div class="login-form-group">
+          <label>Username</label>
+          <input id="user" type="text" placeholder="admin" value="admin" autocomplete="username" autofocus/>
+        </div>
+        <div class="login-form-group">
+          <label>Password</label>
+          <div style="position:relative">
+            <input id="pass" type="password" placeholder="Enter your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" style="padding-right:44px"/>
+            <button type="button" onclick="togglePassword()" id="pwdToggle" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:transparent;border:0;color:#64748b;cursor:pointer;font-size:16px;padding:4px" title="Show/hide password">👁</button>
+          </div>
+        </div>
+        <div class="login-remember">
+          <input type="checkbox" id="remember" checked/>
+          <label for="remember">Keep me signed in</label>
+        </div>
+        <button class="login-submit" onclick="doLogin()">Sign In</button>
+        <div id="loginErr"></div>
+        <div class="login-footer">Secure internal access · SNGPL © 2026</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+<div id="app" style="display:none">
+  <header>
+    <div class="brand">
+      <span class="brand-mark">◈</span>
+      SNGPL Monitor
+    </div>
+    <span class="pill live" id="livePill"><span class="live-dot"></span>LIVE</span>
+    <span style="font-size:11px;color:var(--dim)" id="ageText">just now</span>
+    <div class="spacer"></div>
+    <button class="mute-btn" id="settingsBtn" onclick="showSettingsMenu()" title="Settings & Users">⚙</button>
+    <button class="mute-btn" id="muteBtn" onclick="toggleMute()" title="Toggle notification sound">🔊</button>
+    <div class="bell" id="bellBtn" onclick="showIncidentCenter()" title="Active alerts">
+      🔔<span class="bell-count" id="bellCount" style="display:none">0</span>
+    </div>
+    <button class="logout" onclick="logout()">Logout</button>
+  </header>
+
+  <main>
+    <div id="errBanner" class="error-banner">
+      <span>⚠ Unable to retrieve monitoring data.</span>
+      <span id="errTime"></span>
+      <button onclick="refresh()">Retry</button>
+    </div>
+
+    <!-- ══════════ SYSTEM HEALTH ══════════ -->
+    <section class="health-section">
+      <div class="health-title">System Health</div>
+      <div class="health-sub">Infrastructure overview</div>
+
+      <div class="kpi-grid" id="kpiGrid">
+        <div class="kpi total" data-filter="all" onclick="setFilter('all',this)">
+          <div class="kpi-label"><span class="kpi-icon">🖥</span>Total Servers</div>
+          <div class="kpi-value" id="kpiTotal">—</div>
+          <div class="kpi-desc">Monitored infrastructure</div>
+        </div>
+        <div class="kpi ok" data-filter="healthy" onclick="setFilter('healthy',this)">
+          <div class="kpi-label"><span class="kpi-icon">✓</span>Healthy</div>
+          <div class="kpi-value" id="kpiHealthy">—</div>
+          <div class="kpi-desc">Operating normally</div>
+        </div>
+        <div class="kpi warn" data-filter="warning" onclick="setFilter('warning',this)">
+          <div class="kpi-label"><span class="kpi-icon">⚠</span>Warning</div>
+          <div class="kpi-value" id="kpiWarning">—</div>
+          <div class="kpi-desc">Requires attention</div>
+        </div>
+        <div class="kpi bad" data-filter="critical" onclick="setFilter('critical',this)">
+          <div class="kpi-label"><span class="kpi-icon">!</span>Critical</div>
+          <div class="kpi-value" id="kpiCritical">—</div>
+          <div class="kpi-desc">Immediate action</div>
+        </div>
+        <div class="kpi off" data-filter="offline" onclick="setFilter('offline',this)">
+          <div class="kpi-label"><span class="kpi-icon">○</span>Offline</div>
+          <div class="kpi-value" id="kpiOffline">—</div>
+          <div class="kpi-desc">Not responding</div>
+        </div>
+      
+        <div class="kpi svc" data-filter="services" onclick="setFilter('services',this)">
+          <div class="kpi-label"><span class="kpi-icon">⚙</span>Services</div>
+          <div class="kpi-value" id="kpiServices">—</div>
+          <div class="kpi-desc">Running services</div>
+        </div>
+      </div>
+
+      <div class="avail">
+        <div class="avail-head">
+          <div>
+            <div class="avail-title">Server Availability</div>
+            <div class="avail-sub" id="availSub">— / — Online</div>
+          </div>
+          <div class="avail-value" id="availValue">—</div>
+        </div>
+        <div class="avail-bar"><div class="avail-fill" id="availFill" style="width:0%"></div></div>
+      </div>
+    </section>
+
+    <!-- ══════════ INCIDENT CENTER ══════════ -->
+    <section class="incident-section clean" id="incidentSection">
+      <div class="incident-title">
+        <span>🔔 Incident Center</span>
+        <span class="inc-view-all" onclick="showIncidentCenter()">View All →</span>
+      </div>
+      <div class="incident-sub" id="incidentSub">No active incidents</div>
+      <div class="incident-list" id="incidentList"></div>
+    </section>
+
+    <!-- ══════════ SERVERS ══════════ -->
+    <div class="servers-title">Servers</div>
+
+    <div class="filters">
+      <div class="chip active" data-f="all" onclick="setFilter('all',this)">All <span class="cnt" id="cntAll">0</span></div>
+      <div class="chip" data-f="RHEL" onclick="setFilter('RHEL',this)">🐧 RHEL <span class="cnt" id="cntRHEL">0</span></div>
+      <div class="chip" data-f="AIX" onclick="setFilter('AIX',this)">🅰️ AIX <span class="cnt" id="cntAIX">0</span></div>
+      <div class="chip" data-f="alerts" onclick="setFilter('alerts',this)">⚠ Alerts <span class="cnt" id="cntAlerts">0</span></div>
+      <div class="chip" data-f="services" onclick="setFilter('services',this)">⚙ Services <span class="cnt" id="cntServices">0</span></div>
+      <div class="chip" data-f="offline" onclick="setFilter('offline',this)">🔌 Offline <span class="cnt" id="cntOffline">0</span></div>
+    </div>
+
+    <div id="listView"><div class="grid" id="cards"></div></div>
+
+    <div id="detailView" class="detail">
+      <div class="back" onclick="showList()">← Back to servers</div>
+      <div id="detailContent"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   SNGPL Monitor — Frontend (Phase 1: KPI + Health)
+   ══════════════════════════════════════════════════════════ */
+
+const API = location.origin;
+let TOKEN = localStorage.getItem("sngpl_token") || "";
+let SERVERS = [];
+let WS = null;
+let CURRENT = "";
+let FILTER = "all";
+let LAST_UPDATE = null;
+let WS_STATE = "connecting";
+
+/* ───── API helper ───── */
+function api(p, o) {
+  o = o || {};
+  o.headers = Object.assign({ "Content-Type": "application/json" }, o.headers || {});
+  if (TOKEN) o.headers["Authorization"] = "Bearer " + TOKEN;
+  return fetch(API + p, o).then(r => r.ok ? r.json() : r.json().then(e => Promise.reject(e)));
+}
+
+/* ───── Auth ───── */
+function togglePassword() {
+  const pwd = document.getElementById("pass");
+  const btn = document.getElementById("pwdToggle");
+  if (!pwd) return;
+  if (pwd.type === "password") {
+    pwd.type = "text";
+    if (btn) btn.textContent = "🙈";
+  } else {
+    pwd.type = "password";
+    if (btn) btn.textContent = "👁";
+  }
+}
+
+function doLogin() {
+  const u = document.getElementById("user").value;
+  const p = document.getElementById("pass").value;
+  document.getElementById("loginErr").textContent = "";
+  api("/api/v1/auth/login", { method: "POST", body: JSON.stringify({ username: u, password: p }) })
+    .then(r => {
+      TOKEN = r.access_token;
+      localStorage.setItem("sngpl_token", TOKEN);
+      startApp();
+    })
+    .catch(() => { document.getElementById("loginErr").textContent = "Login failed"; });
+}
+
+function logout() {
+  TOKEN = "";
+  localStorage.removeItem("sngpl_token");
+  location.reload();
+}
+
+/* ───── App start ───── */
+function startApp() {
+  document.getElementById("login").style.display = "none";
+  document.getElementById("login").classList.add("hidden");
+  // Load current user info (for role-based UI)
+  api("/api/v1/auth/me").then(function(r) {
+    if (r && r.data) {
+      window.CURRENT_USER = r.data;
+      if (typeof applyRoleRestrictions === "function") {
+        applyRoleRestrictions(r.data.role);
+      }
+    }
+  }).catch(function(e) { console.error("me:", e); });
+  document.getElementById("app").style.display = "block";
+  refresh();
+  connectWS();
+  setInterval(refresh, 5000);
+  setInterval(updateAge, 1000);
+  setInterval(loadIncidents, 30000);
+  initMuteButton();
+  loadIncidents();
+}
+
+/* ───── WebSocket ───── */
+function connectWS() {
+  if (!TOKEN) return;
+  const proto = location.protocol === "https:" ? "wss" : "ws";
+  WS = new WebSocket(proto + "://" + location.host + "/api/v1/ws/live");
+  let authed = false;
+
+  WS.onopen = function () {
+    // Send auth as first message (token NOT in URL)
+    try {
+      WS.send(JSON.stringify({ type: "auth", token: TOKEN }));
+    } catch (e) {
+      console.error("ws send auth failed", e);
+    }
+  };
+
+  WS.onmessage = function (e) {
+    let m;
+    try { m = JSON.parse(e.data); } catch (x) { return; }
+
+    // Auth ack
+    if (m.type === "auth_ok") {
+      authed = true;
+      setWsState("live");
+      return;
+    }
+    if (m.type === "error") {
+      console.warn("ws error:", m.message);
+      return;
+    }
+
+    // Metric update
+    if (m.type === "metric") {
+      const i = SERVERS.findIndex(s => s.name === m.server);
+      const u = Object.assign({ name: m.server, status: "online", age_sec: 0 }, m.data);
+      if (i >= 0) SERVERS[i] = u; else SERVERS.push(u);
+      LAST_UPDATE = Date.now();
+      render();
+    }
+  };
+
+  WS.onclose = function (event) {
+    // Auth failed — session expired, force logout
+    if (event.code === 4401) {
+      console.warn("WS auth failed — logging out");
+      try { logout(); } catch (e) {}
+      return;
+    }
+    // Rate limited
+    if (event.code === 4429) {
+      console.warn("WS rate limited — retry in 60s");
+      setWsState("recon");
+      setTimeout(connectWS, 60000);
+      return;
+    }
+    // Normal close — reconnect
+    setWsState("recon");
+    setTimeout(connectWS, 3000);
+  };
+
+  WS.onerror = function () {
+    try { WS.close(); } catch (e) {}
+  };
+}
+
+function setWsState(s) {
+  WS_STATE = s;
+  const el = document.getElementById("livePill");
+  if (!el) return;
+  if (s === "live") {
+    el.className = "pill live";
+    el.innerHTML = '<span class="live-dot"></span>LIVE';
+  } else {
+    el.className = "pill recon";
+    el.innerHTML = '<span class="live-dot" style="background:#eab308;animation:none"></span>RECONNECTING';
+  }
+}
+
+/* ───── Data refresh ───── */
+function refresh() {
+  api("/api/v1/servers")
+    .then(r => {
+      SERVERS = r.data;
+      LAST_UPDATE = Date.now();
+      document.getElementById("errBanner").classList.remove("show");
+      render();
+    })
+    .catch(err => {
+      const b = document.getElementById("errBanner");
+      b.classList.add("show");
+      document.getElementById("errTime").textContent = LAST_UPDATE
+        ? "Last update: " + new Date(LAST_UPDATE).toLocaleTimeString()
+        : "";
+    });
+}
+
+/* ───── Time helper ───── */
+function updateAge() {
+  const el = document.getElementById("ageText");
+  if (!el || !LAST_UPDATE) return;
+  const sec = Math.floor((Date.now() - LAST_UPDATE) / 1000);
+  if (sec < 5) el.textContent = "just now";
+  else if (sec < 60) el.textContent = sec + "s ago";
+  else if (sec < 3600) el.textContent = Math.floor(sec / 60) + "m ago";
+  else el.textContent = Math.floor(sec / 3600) + "h ago";
+}
+
+/* ───── Status computation (existing thresholds preserved) ───── */
+function serverStatus(s) {
+  if (!s || s.status !== "online") return "offline";
+  const cpuP = s.cpu ? s.cpu.usage_pct : 0;
+  const ramP = (s.ram && s.ram.total_mb) ? (100 * s.ram.used_mb / s.ram.total_mb) : 0;
+  const diskP = (s.mounts || []).reduce((a, m) => Math.max(a, m.use_pct || 0), 0);
+  const worst = Math.max(cpuP, ramP, diskP);
+  if (worst >= 95) return "critical";
+  if (worst >= 90) return "warning";
+  return "healthy";
+}
+
+/* ───── Filter ───── */
+function setFilter(f, el) {
+  FILTER = f;
+  document.querySelectorAll(".filters .chip").forEach(c => c.classList.remove("active"));
+  document.querySelectorAll(".kpi").forEach(c => c.classList.remove("active"));
+
+  const chip = document.querySelector('.filters .chip[data-f="' + f + '"]');
+  if (chip) chip.classList.add("active");
+  const kpi = document.querySelector('.kpi[data-filter="' + f + '"]');
+  if (kpi) kpi.classList.add("active");
+
+  document.getElementById("detailView").classList.remove("active");
+  document.getElementById("listView").style.display = "block";
+  render();
+}
+
+function filterAlerts() { setFilter("alerts", document.querySelector('.chip[data-f="alerts"]')); }
+
+/* ───── KPI computation ───── */
+
+function serverGroup(s) {
+  if (s && s.group) return s.group;
+  if (!s || !s.os_type) return "UNKNOWN";
+  if (s.os_type === "AIX") return "AIX";
+  if (s.os_type === "Linux" || s.os_type === "SunOS") return "RHEL";
+  return "UNKNOWN";
+}
+
+function computeKpis() {
+  let healthy = 0, warning = 0, critical = 0, offline = 0, online = 0;
+  let rhel = 0, aix = 0;
+
+  SERVERS.forEach(s => {
+    const st = serverStatus(s);
+    if (st === "offline") offline++;
+    else {
+      online++;
+      if (st === "healthy") healthy++;
+      else if (st === "warning") warning++;
+      else if (st === "critical") critical++;
+    }
+    if (serverGroup(s) === "RHEL") rhel++;
+    if (serverGroup(s) === "AIX") aix++;
+  });
+
+  return {
+    total: SERVERS.length,
+    healthy, warning, critical, offline, online,
+    rhel, aix,
+    alerts: warning + critical
+  };
+}
+
+/* ───── Animate number change ───── */
+const KPI_LAST = {};
+function animKpi(id, target) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const prev = KPI_LAST[id];
+  if (prev === target) return;
+  KPI_LAST[id] = target;
+
+  const from = prev === undefined ? 0 : prev;
+  const to = target;
+  const steps = 8;
+  let step = 0;
+  const timer = setInterval(() => {
+    step++;
+    const val = Math.round(from + (to - from) * (step / steps));
+    el.textContent = val;
+    if (step >= steps) { clearInterval(timer); el.textContent = to; }
+  }, 30);
+}
+
+/* ───── Render ───── */
+
+/* ────── INCIDENT CENTER (Phase 3B) ────── */
+let INCIDENTS = [];
+let INCIDENTS_SUMMARY = {active:0, resolved:0, total:0};
+
+function timeAgo(ts) {
+  if (!ts) return "--";
+  let s = Math.floor(Date.now()/1000) - ts;
+  if (s < 0) s = 0;   // Fix: browser/server clock drift
+  if (s < 60) return s + "s ago";
+  if (s < 3600) return Math.floor(s/60) + "m ago";
+  if (s < 86400) return Math.floor(s/3600) + "h ago";
+  return Math.floor(s/86400) + "d ago";
+}
+
+function duration(ts1, ts2) {
+  if (!ts1) return "--";
+  const end = ts2 || Math.floor(Date.now()/1000);
+  const s = end - ts1;
+  if (s < 60) return s + "s";
+  if (s < 3600) return Math.floor(s/60) + "m " + (s%60) + "s";
+  return Math.floor(s/3600) + "h " + Math.floor((s%3600)/60) + "m";
+}
+
+
+/* ────── NOTIFICATIONS ENGINE (Phase 3C) ────── */
+let SOUND_ENABLED = localStorage.getItem("sngpl_sound") !== "off";
+let ALERT_COOLDOWN = {};   // incident_id -> last alert ts
+const COOLDOWN_SECONDS = 300;   // 5 minutes
+
+function toggleMute() {
+  SOUND_ENABLED = !SOUND_ENABLED;
+  localStorage.setItem("sngpl_sound", SOUND_ENABLED ? "on" : "off");
+  const btn = document.getElementById("muteBtn");
+  if (btn) {
+    btn.textContent = SOUND_ENABLED ? "🔊" : "🔇";
+    btn.classList.toggle("muted", !SOUND_ENABLED);
+  }
+}
+
+function initMuteButton() {
+  const btn = document.getElementById("muteBtn");
+  if (!btn) return;
+  btn.textContent = SOUND_ENABLED ? "🔊" : "🔇";
+  btn.classList.toggle("muted", !SOUND_ENABLED);
+}
+
+// Web Audio API — generate beeps without any file
+function playBeep(type) {
+  if (!SOUND_ENABLED) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = ctx.currentTime;
+
+    if (type === "critical") {
+      // Two sharp beeps
+      [0, 0.18].forEach((offset) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "square";
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.15, now + offset);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.15);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + offset);
+        osc.stop(now + offset + 0.15);
+      });
+    } else if (type === "warning") {
+      // One soft beep
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = 600;
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.25);
+    } else if (type === "recovery") {
+      // Pleasant chime (3 ascending notes)
+      [523, 659, 784].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        const offset = i * 0.12;
+        gain.gain.setValueAtTime(0.12, now + offset);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.2);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + offset);
+        osc.stop(now + offset + 0.2);
+      });
+    }
+  } catch(e) { console.error("beep", e); }
+}
+
+function showToast(kind, title, meta, onClick) {
+  const container = document.getElementById("toastContainer");
+  if (!container) return;
+
+  const el = document.createElement("div");
+  el.className = "toast " + kind;
+  const icon = kind === "ok" ? "✅" : kind === "warn" ? "⚠" : kind === "info" ? "ℹ️" : "🔴";
+  const label = kind === "ok" ? "RECOVERED" : kind === "warn" ? "WARNING" : kind === "info" ? "INFO" : "CRITICAL";
+
+  el.innerHTML =
+    '<div class="toast-head">' + icon + ' ' + label + '</div>' +
+    '<div class="toast-title">' + title + '</div>' +
+    '<div class="toast-meta">' + (meta || "") + '</div>' +
+    '<div class="toast-time">just now</div>' +
+    '<div class="toast-actions">' +
+      '<button class="toast-btn" data-action="view">View</button>' +
+      '<button class="toast-btn" data-action="dismiss">Dismiss</button>' +
+    '</div>';
+
+  el.querySelector('[data-action="view"]').onclick = (e) => {
+    e.stopPropagation();
+    if (onClick) onClick();
+    dismissToast(el);
+  };
+  el.querySelector('[data-action="dismiss"]').onclick = (e) => {
+    e.stopPropagation();
+    dismissToast(el);
+  };
+  el.onclick = () => {
+    if (onClick) onClick();
+    dismissToast(el);
+  };
+
+  container.appendChild(el);
+  setTimeout(() => dismissToast(el), 8000);
+}
+
+function dismissToast(el) {
+  if (!el || !el.parentElement) return;
+  el.classList.add("dismiss");
+  setTimeout(() => el.remove(), 300);
+}
+
+// Cooldown check
+function canAlert(incidentId) {
+  const now = Math.floor(Date.now() / 1000);
+  const last = ALERT_COOLDOWN[incidentId] || 0;
+  if (now - last < COOLDOWN_SECONDS) return false;
+  ALERT_COOLDOWN[incidentId] = now;
+  return true;
+}
+
+// Detect changes between polls
+function detectIncidentChanges(oldList, newList) {
+  const oldMap = {};
+  (oldList || []).forEach(i => { oldMap[i.id] = i; });
+  const newMap = {};
+  (newList || []).forEach(i => { newMap[i.id] = i; });
+
+  // New ACTIVE incidents
+  newList.forEach(inc => {
+    if (inc.status !== "ACTIVE") return;
+    const prev = oldMap[inc.id];
+    if (!prev) {
+      // Brand new incident
+      if (!canAlert(inc.id)) return;
+      const kind = inc.severity === "WARNING" ? "warn" : inc.severity === "INFO" ? "info" : "critical";
+      playBeep(kind === "warn" ? "warning" : "critical");
+      showToast(kind,
+        (inc.message || (inc.service || inc.category)),
+        inc.server + (inc.service ? " · " + inc.service : ""),
+        () => { showIncidentCenter(); setTimeout(() => showIncidentDetail(inc.id), 300); }
+      );
+    }
+  });
+
+  // Newly RESOLVED incidents
+  newList.forEach(inc => {
+    if (inc.status !== "RESOLVED") return;
+    const prev = oldMap[inc.id];
+    if (prev && prev.status === "ACTIVE") {
+      if (!canAlert("resolved-" + inc.id)) return;
+      playBeep("recovery");
+      showToast("ok",
+        (inc.service || inc.category || "Incident") + " recovered",
+        inc.server + " · resolved",
+        () => { showIncidentCenter(); setTimeout(() => showIncidentDetail(inc.id), 300); }
+      );
+    }
+  });
+}
+
+async function loadIncidents() {
+  try {
+    const [r1, r2] = await Promise.all([
+      api("/api/v1/incidents?limit=20"),
+      api("/api/v1/incidents/summary")
+    ]);
+    const oldList = INCIDENTS.slice();
+    INCIDENTS = r1.data || [];
+    INCIDENTS_SUMMARY = r2.data || {};
+    // Detect new/resolved incidents (skip on first load)
+    if (oldList.length > 0) {
+      try { detectIncidentChanges(oldList, INCIDENTS); } catch(e) { console.error("detect", e); }
+    }
+    renderIncidents();
+    updateBell();
+  } catch(e) { console.error("incidents load", e); }
+}
+
+function renderIncidents() {
+  const el = document.getElementById("incidentList");
+  const sec = document.getElementById("incidentSection");
+  const sub = document.getElementById("incidentSub");
+  if (!el || !sec) return;
+
+  const active = INCIDENTS.filter(i => i.status === "ACTIVE");
+  const recent = INCIDENTS.filter(i => i.status === "RESOLVED").slice(0, 3);
+  const show = active.length ? active.slice(0, 5) : recent.slice(0, 3);
+
+  if (!show.length) {
+    sec.classList.add("clean");
+    sub.textContent = "No active incidents — all clear ✓";
+    el.innerHTML = '<div class="inc-clean">✓ All systems operational</div>';
+    return;
+  }
+
+  sec.classList.remove("clean");
+  const c = INCIDENTS_SUMMARY;
+  sub.textContent = c.active + " Active · " + c.resolved + " Resolved · " + c.total + " Total";
+
+  el.innerHTML = show.map(inc => {
+    const sev = inc.severity === "CRITICAL" ? "" : inc.severity === "WARNING" ? "warn" : "info";
+    const statusCls = inc.status === "RESOLVED" ? "resolved" : "";
+    const icon = inc.status === "RESOLVED" ? "✅" : (inc.severity === "CRITICAL" ? "🔴" : inc.severity === "WARNING" ? "🟡" : "ℹ️");
+    const age = timeAgo(inc.first_detected);
+    return '<div class="incident-item ' + sev + ' ' + statusCls + '" onclick="showIncidentDetail(' + inc.id + ')">' +
+      '<div class="inc-icon">' + icon + '</div>' +
+      '<div class="inc-body">' +
+        '<div class="inc-title">' + (inc.message || (inc.service || inc.category) + ' issue') + '</div>' +
+        '<div class="inc-meta">' + inc.server + (inc.service ? ' · ' + inc.service : '') + ' · ' + inc.status + (inc.acknowledged ? ' · ACK' : '') + '</div>' +
+      '</div>' +
+      '<div class="inc-time">' + age + '</div>' +
+    '</div>';
+  }).join("");
+}
+
+function updateBell() {
+  const bell = document.getElementById("bellCount");
+  if (!bell) return;
+  // Count only UNACKNOWLEDGED ACTIVE incidents
+  // (acknowledged incidents remain visible in list, but don't alert in bell)
+  const unacked = (INCIDENTS || []).filter(i =>
+    i.status === "ACTIVE" && !i.acknowledged
+  ).length;
+  if (unacked > 0) {
+    bell.style.display = "";
+    bell.textContent = unacked;
+  } else {
+    bell.style.display = "none";
+  }
+}
+
+let INC_TAB = "ACTIVE";
+
+function showIncidentCenter() {
+  document.getElementById("incOverlay").classList.add("open");
+  setIncTab("ACTIVE", document.querySelector('.inc-tab[data-st="ACTIVE"]'));
+}
+
+function closeIncidentCenter() {
+  document.getElementById("incOverlay").classList.remove("open");
+  closeIncidentDetail();
+}
+
+function setIncTab(st, el) {
+  INC_TAB = st;
+  document.querySelectorAll(".inc-tab").forEach(t => t.classList.remove("active"));
+  if (el) el.classList.add("active");
+  renderIncidentCenterList();
+}
+
+function renderIncidentCenterList() {
+  const el = document.getElementById("incFullList");
+  if (!el) return;
+
+  const search = (document.getElementById("incSearch").value || "").toLowerCase();
+  const sev = document.getElementById("incSevFilter").value;
+
+  let list = INCIDENTS.slice();
+  if (INC_TAB === "ACTIVE") list = list.filter(i => i.status === "ACTIVE");
+  else if (INC_TAB === "RESOLVED") list = list.filter(i => i.status === "RESOLVED");
+
+  if (sev) list = list.filter(i => i.severity === sev);
+
+  if (search) {
+    list = list.filter(i =>
+      (i.server || "").toLowerCase().includes(search) ||
+      (i.service || "").toLowerCase().includes(search) ||
+      (i.message || "").toLowerCase().includes(search)
+    );
+  }
+
+  if (!list.length) {
+    const msg = INC_TAB === "ACTIVE"
+      ? '<span class="ok-icon">✓</span>No active incidents — all clear'
+      : "No incidents match your filters";
+    el.innerHTML = '<div class="inc-empty">' + msg + '</div>';
+    return;
+  }
+
+  el.innerHTML = list.map(inc => {
+    const cls = inc.status === "RESOLVED" ? "resolved" : (inc.severity === "WARNING" ? "warn" : inc.severity === "INFO" ? "info" : "");
+    const icon = inc.status === "RESOLVED" ? "✅" : (inc.severity === "CRITICAL" ? "🔴" : inc.severity === "WARNING" ? "🟡" : "ℹ️");
+    const sevClass = inc.severity === "WARNING" ? "warn" : inc.severity === "INFO" ? "info" : "";
+    const age = inc.status === "RESOLVED"
+      ? ("resolved " + timeAgo(inc.resolved_at))
+      : timeAgo(inc.first_detected);
+    const ackTag = inc.acknowledged ? '<span class="ack-tag">ACK</span>' : "";
+    return '<div class="inc-row ' + cls + '" onclick="showIncidentDetail(' + inc.id + ')">' +
+      '<div class="inc-row-icon">' + icon + '</div>' +
+      '<div class="inc-row-body">' +
+        '<div class="inc-row-title">' + (inc.message || (inc.service || inc.category)) + '</div>' +
+        '<div class="inc-row-meta">' +
+          '<span class="sev-tag ' + sevClass + '">' + (inc.severity || '-') + '</span>' +
+          '<span>' + inc.server + '</span>' +
+          (inc.service ? '<span>' + inc.service + '</span>' : '') +
+          '<span>' + inc.status + '</span>' +
+          ackTag +
+        '</div>' +
+      '</div>' +
+      '<div class="inc-row-time">' + age + '</div>' +
+    '</div>';
+  }).join("");
+}
+
+async function showIncidentDetail(id) {
+  try {
+    const r = await api("/api/v1/incidents/" + id);
+    const inc = r.data;
+    const panel = document.getElementById("incDetail");
+    const body = document.getElementById("incDetailBody");
+
+    const sevClass = inc.status === "RESOLVED" ? "resolved" : (inc.severity === "CRITICAL" ? "critical" : inc.severity === "WARNING" ? "warning" : "info");
+
+    let h = '';
+    h += '<span class="inc-detail-badge ' + sevClass + '">' + (inc.status === "RESOLVED" ? "RESOLVED" : inc.severity) + '</span>';
+    h += '<h2 class="inc-detail-title">' + (inc.message || (inc.service || inc.category)) + '</h2>';
+    h += '<div class="inc-detail-sub">' + inc.server + (inc.service ? ' · ' + inc.service : '') + '</div>';
+
+    h += '<div class="inc-kv">';
+    h += '<div class="inc-kv-key">Status</div><div class="inc-kv-val">' + inc.status + (inc.acknowledged ? ' · ACKNOWLEDGED by ' + inc.acknowledged_by : '') + '</div>';
+    h += '<div class="inc-kv-key">Category</div><div class="inc-kv-val">' + (inc.category || '-') + '</div>';
+    h += '<div class="inc-kv-key">Severity</div><div class="inc-kv-val">' + inc.severity + '</div>';
+    h += '<div class="inc-kv-key">Detected</div><div class="inc-kv-val">' + new Date(inc.first_detected * 1000).toLocaleString() + '</div>';
+    h += '<div class="inc-kv-key">Last Seen</div><div class="inc-kv-val">' + new Date(inc.last_seen * 1000).toLocaleString() + '</div>';
+    if (inc.resolved_at) {
+      h += '<div class="inc-kv-key">Resolved</div><div class="inc-kv-val">' + new Date(inc.resolved_at * 1000).toLocaleString() + '</div>';
+    }
+    h += '<div class="inc-kv-key">Duration</div><div class="inc-kv-val">' + duration(inc.first_detected, inc.resolved_at) + '</div>';
+    h += '<div class="inc-kv-key">Failures</div><div class="inc-kv-val">' + inc.failure_count + '</div>';
+    h += '</div>';
+
+    h += '<div class="inc-actions">';
+    h += '<button class="ai-btn" onclick="askAIAboutIncident(' + inc.id + ')">🤖 Explain this incident</button>';
+    if (inc.status === "ACTIVE" && !inc.acknowledged) {
+      h += '<button class="inc-btn inc-btn-ack" onclick="acknowledgeIncident(' + inc.id + ')">✓ Acknowledge</button>';
+    } else if (inc.acknowledged) {
+      h += '<button class="inc-btn inc-btn-ack" disabled>✓ Acknowledged</button>';
+    }
+    h += '</div>';
+
+    if (inc.events && inc.events.length) {
+      h += '<div class="inc-timeline-title">Timeline (' + inc.events.length + ' events)</div>';
+      h += '<div class="inc-timeline">';
+      inc.events.forEach(ev => {
+        const cls = ev.type === "RESOLVED" ? "resolved" : ev.type === "CREATED" ? "created" : "";
+        h += '<div class="inc-event ' + cls + '">';
+        h += '<div class="inc-event-time">' + new Date(ev.ts * 1000).toLocaleTimeString() + '</div>';
+        h += '<div class="inc-event-text"><span class="inc-event-type">' + ev.type + '</span>' + (ev.detail || '') + '</div>';
+        h += '</div>';
+      });
+      h += '</div>';
+    }
+
+    body.innerHTML = h;
+    panel.classList.add("open");
+  } catch(e) {
+    console.error("incident detail", e);
+    alert("Failed to load incident detail");
+  }
+}
+
+function closeIncidentDetail() {
+  document.getElementById("incDetail").classList.remove("open");
+}
+
+async function acknowledgeIncident(id) {
+  if (!confirm("Acknowledge this incident?\n\nNote: Acknowledging does NOT resolve it. It will only be resolved when the service actually recovers.")) return;
+  try {
+    await api("/api/v1/incidents/" + id + "/acknowledge", { method: "POST" });
+    await loadIncidents();
+    showIncidentDetail(id);
+  } catch(e) {
+    console.error("ack", e);
+    alert("Failed to acknowledge");
+  }
+}
+
+function render() {
+  const kpi = computeKpis();
+  // Count actual active incidents (not stale)
+  kpi.alerts = (INCIDENTS || []).filter(i => i.status === "ACTIVE").length;
+  // Count services across all servers
+  let totalServices = 0, runningServices = 0, degradedServices = 0, downServices = 0;
+  SERVERS.forEach(s => {
+    (s.services || []).forEach(svc => {
+      totalServices++;
+      const st = (svc.status || "").toLowerCase();
+      if (st === "running") runningServices++;
+      else if (st === "degraded") degradedServices++;
+      else if (st === "down") downServices++;
+    });
+  });
+  kpi.services = totalServices;
+  kpi.runningServices = runningServices;
+  kpi.downServices = downServices;
+
+  /* --- KPI cards --- */
+  animKpi("kpiTotal", kpi.total);
+  animKpi("kpiHealthy", kpi.healthy);
+  animKpi("kpiWarning", kpi.warning);
+  animKpi("kpiCritical", kpi.critical);
+  animKpi("kpiOffline", kpi.offline);
+  animKpi("kpiServices", totalServices || 0);
+
+  /* --- Availability --- */
+  const availPct = kpi.total ? Math.round((kpi.online / kpi.total) * 1000) / 10 : 0;
+  const availEl = document.getElementById("availValue");
+  const availSub = document.getElementById("availSub");
+  const availFill = document.getElementById("availFill");
+  availEl.textContent = availPct + "%";
+  availSub.textContent = kpi.online + " / " + kpi.total + " Online";
+  availFill.style.width = availPct + "%";
+  availFill.className = "avail-fill" + (availPct >= 90 ? "" : availPct >= 60 ? " warn" : " bad");
+
+  /* --- Filter counts --- */
+  document.getElementById("cntAll").textContent = kpi.total;
+  document.getElementById("cntRHEL").textContent = kpi.rhel;
+  document.getElementById("cntAIX").textContent = kpi.aix;
+  document.getElementById("cntAlerts").textContent = kpi.alerts;
+  document.getElementById("cntOffline").textContent = kpi.offline;
+  const elCntSvc = document.getElementById("cntServices");
+  if (elCntSvc) elCntSvc.textContent = totalServices || 0;
+
+  /* --- Bell --- */
+  const bell = document.getElementById("bellCount");
+  if (kpi.alerts > 0) {
+    bell.style.display = "";
+    bell.textContent = kpi.alerts;
+  } else {
+    bell.style.display = "none";
+  }
+
+  /* --- Server cards --- */
+  if (document.getElementById("detailView").classList.contains("active")) return renderDetail();
+
+  let list = SERVERS.slice();
+  if (FILTER === "RHEL") list = list.filter(s => serverGroup(s) === "RHEL");
+  else if (FILTER === "AIX") list = list.filter(s => serverGroup(s) === "AIX");
+  else if (FILTER === "alerts") list = list.filter(s => {
+    const st = serverStatus(s); return st === "warning" || st === "critical";
+  });
+  else if (FILTER === "services") {
+    list = list.filter(s => (s.services || []).some(svc => {
+      const st = (svc.status || "").toLowerCase();
+      return st === "down" || st === "degraded";
+    }));
+  }
+  else if (FILTER === "offline") list = list.filter(s => serverStatus(s) === "offline");
+  else if (FILTER === "healthy") list = list.filter(s => serverStatus(s) === "healthy");
+  else if (FILTER === "warning") list = list.filter(s => serverStatus(s) === "warning");
+  else if (FILTER === "critical") list = list.filter(s => serverStatus(s) === "critical");
+
+  /* Sort: offline last, critical first */
+  const order = { critical: 0, warning: 1, healthy: 2, offline: 3 };
+  list.sort((a, b) => order[serverStatus(a)] - order[serverStatus(b)]);
+
+  const cards = document.getElementById("cards");
+  if (!list.length) {
+    cards.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)">No servers match this filter</div>';
+    return;
+  }
+
+  cards.innerHTML = list.map(s => {
+    const st = serverStatus(s);
+    const cssClass = st === "healthy" ? "ok" : st === "warning" ? "warn" : st === "critical" ? "bad" : "off";
+    const tagText = st === "healthy" ? "OK" : st === "warning" ? "WARN" : st === "critical" ? "CRIT" : "OFF";
+    const cpuP = s.cpu ? Math.round(s.cpu.usage_pct) : 0;
+    const ramP = (s.ram && s.ram.total_mb) ? Math.round(100 * s.ram.used_mb / s.ram.total_mb) : 0;
+    const diskP = (s.mounts || []).reduce((a, m) => Math.max(a, m.use_pct || 0), 0);
+    const osBadge = s.os_type === "AIX" ? "AIX" : s.os_type === "SunOS" ? "Solaris" : "RHEL";
+    const pc = p => p >= 95 ? "bad" : p >= 90 ? "warn" : "ok";
+
+    return '<div class="card ' + cssClass + '" onclick="showDetail(\'' + s.name + '\')">' +
+      '<h3>' + s.name +
+        '<span class="status-tag">' + tagText + '</span>' +
+        '<span class="os-badge">' + osBadge + '</span>' +
+      '</h3>' +
+      '<div class="row"><span>CPU</span><b>' + cpuP + '%</b></div>' +
+      '<div class="bar ' + pc(cpuP) + '"><i style="width:' + cpuP + '%"></i></div>' +
+      '<div class="row"><span>RAM</span><b>' + ramP + '%</b></div>' +
+      '<div class="bar ' + pc(ramP) + '"><i style="width:' + ramP + '%"></i></div>' +
+      '<div class="row"><span>Disk</span><b>' + diskP + '%</b></div>' +
+      '<div class="bar ' + pc(diskP) + '"><i style="width:' + diskP + '%"></i></div>' +
+    '</div>';
+  }).join("");
+}
+
+/* ───── Detail view ───── */
+function showDetail(name) {
+  CURRENT = name;
+  document.getElementById("listView").style.display = "none";
+  document.getElementById("detailView").classList.add("active");
+  renderDetail();
+}
+
+function showList() {
+  document.getElementById("detailView").classList.remove("active");
+  document.getElementById("listView").style.display = "block";
+  render();
+}
+
+function renderDetail() {
+  const s = SERVERS.find(x => x.name === CURRENT);
+  if (!s) { document.getElementById("detailContent").innerHTML = "No data"; return; }
+
+  const st = serverStatus(s);
+  const cssClass = st === "healthy" ? "ok" : st === "warning" ? "warn" : st === "critical" ? "bad" : "off";
+  const cpuP = s.cpu ? s.cpu.usage_pct.toFixed(1) : 0;
+  const ramP = (s.ram && s.ram.total_mb) ? Math.round(100 * s.ram.used_mb / s.ram.total_mb) : 0;
+  const osBadge = s.os_type === "AIX" ? "AIX" : s.os_type === "SunOS" ? "Solaris" : "RHEL";
+  const pc = p => p >= 95 ? "bad" : p >= 90 ? "warn" : "ok";
+  const fu = sec => {
+    if (!sec) return "--";
+    const d = Math.floor(sec / 86400), h = Math.floor((sec % 86400) / 3600);
+    return d + "d " + h + "h";
+  };
+
+  const mounts = (s.mounts || []).map(m =>
+    '<div style="margin-bottom:10px">' +
+      '<div class="row"><span>' + m.mount + '</span><b>' + m.use_pct + '% (' + m.used_gb + '/' + m.total_gb + ' GB)</b></div>' +
+      '<div class="bar ' + pc(m.use_pct) + '"><i style="width:' + m.use_pct + '%"></i></div>' +
+    '</div>'
+  ).join("");
+
+  const procs = (s.top_cpu || []).slice(0, 15).map(p =>
+    '<tr><td>' + p.pid + '</td><td>' + p.user + '</td>' +
+    '<td>' + (p.cpu || 0).toFixed(1) + '</td><td>' + (p.mem || 0).toFixed(1) + '</td>' +
+    '<td>' + p.cmd + '</td></tr>'
+  ).join("");
+
+  document.getElementById("detailContent").innerHTML =
+    '<h2 style="margin:0;display:flex;align-items:center;gap:10px">' + s.name +
+      '<span class="status-tag" style="font-size:11px;padding:3px 9px">' +
+        (st === "healthy" ? "OK" : st === "warning" ? "WARN" : st === "critical" ? "CRITICAL" : "OFFLINE") +
+      '</span>' +
+      '<span class="os-badge" style="font-size:11px">' + osBadge + '</span>' +
+    '</h2>' +
+    '<div style="color:var(--muted);font-size:12px;margin:8px 0 18px">' +
+      (s.os_version || '') + ' · Kernel ' + (s.kernel || '') + ' · Uptime ' + fu(s.uptime_sec) +
+    '</div>' +
+    '<div class="grid">' +
+      '<div class="card ' + cssClass + '" style="cursor:default">' +
+        '<h3>CPU</h3>' +
+        '<div style="font-size:32px;font-weight:800;color:var(--acc)">' + cpuP + '%</div>' +
+        '<div class="row"><span>Load 1/5/15</span><b>' + (s.cpu ? s.cpu.load_1 + ' / ' + s.cpu.load_5 + ' / ' + s.cpu.load_15 : '--') + '</b></div>' +
+      '</div>' +
+      '<div class="card ' + cssClass + '" style="cursor:default">' +
+        '<h3>RAM</h3>' +
+        '<div style="font-size:32px;font-weight:800;color:var(--acc)">' + ramP + '%</div>' +
+        '<div class="row"><span>Used</span><b>' + (s.ram ? s.ram.used_mb + ' / ' + s.ram.total_mb + ' MB' : '--') + '</b></div>' +
+        '<div class="row"><span>Swap</span><b>' + (s.ram ? s.ram.swap_used_mb + ' / ' + s.ram.swap_total_mb + ' MB' : '--') + '</b></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card" style="cursor:default;margin-top:14px"><h3>Mount Points</h3>' + (mounts || 'No data') + '</div>' +
+    '<div class="card" style="cursor:default;margin-top:14px;overflow-x:auto">' +
+      '<h3>Top Processes (by CPU)</h3>' +
+      '<table><thead><tr><th>PID</th><th>User</th><th>CPU%</th><th>MEM%</th><th>Command</th></tr></thead>' +
+      '<tbody>' + (procs || '<tr><td colspan="5">No data</td></tr>') + '</tbody></table>' +
+    '</div>';
+}
+
+/* ───── Init ───── */
+if (TOKEN) startApp();
+document.getElementById("pass").addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+</script>
+<script src="performance.js"></script>
+
+<!-- ══════════ INCIDENT CENTER OVERLAY ══════════ -->
+<div class="inc-overlay" id="incOverlay">
+  <div class="inc-modal">
+    <div class="inc-modal-head">
+      <h2>🔔 Incident Center</h2>
+      <button class="inc-close" onclick="closeIncidentCenter()">✕ Close</button>
+    </div>
+    <div class="inc-modal-body">
+      <div class="inc-tabs">
+        <button class="inc-tab active" data-st="ACTIVE" onclick="setIncTab('ACTIVE', this)">Active</button>
+        <button class="inc-tab" data-st="RESOLVED" onclick="setIncTab('RESOLVED', this)">Resolved</button>
+        <button class="inc-tab" data-st="ALL" onclick="setIncTab('ALL', this)">All</button>
+      </div>
+      <div class="inc-filters">
+        <input type="text" class="inc-search" id="incSearch" placeholder="Search server, service, message..." oninput="renderIncidentCenterList()"/>
+        <select class="inc-select" id="incSevFilter" onchange="renderIncidentCenterList()">
+          <option value="">All Severity</option>
+          <option value="CRITICAL">Critical</option>
+          <option value="WARNING">Warning</option>
+          <option value="INFO">Info</option>
+        </select>
+      </div>
+      <div class="inc-list-full" id="incFullList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ INCIDENT DETAIL PANEL ══════════ -->
+<div class="inc-detail" id="incDetail">
+  <div class="inc-detail-head">
+    <button class="inc-btn inc-btn-close" onclick="closeIncidentDetail()">←</button>
+    <h3>Incident Detail</h3>
+  </div>
+  <div class="inc-detail-body" id="incDetailBody"></div>
+</div>
+
+
+<!-- ══════════ TOAST NOTIFICATIONS ══════════ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ══════════ AI MODAL ══════════ -->
+<div class="inc-overlay" id="aiModal">
+  <div class="inc-modal" style="max-width:720px">
+    <div class="inc-modal-head">
+      <h2>🤖 AI Insights</h2>
+      <button class="inc-close" onclick="closeAIModal()">✕ Close</button>
+    </div>
+    <div class="inc-modal-body" id="aiModalBody"></div>
+  </div>
+</div>
+
+<script src="ai-functions.js"></script>
+<script src="/vendor/tsparticles.bundle.min.js"></script>
+<script src="/login-visuals.js"></script>
+<script src="/users.js"></script>
+<script src="/sessions.js"></script>
+
+<!-- ══════════ SETTINGS MENU ══════════ -->
+<div id="settingsMenu" style="display:none;position:fixed;top:60px;right:20px;background:#0f172a;border:1px solid #334155;border-radius:10px;padding:8px;min-width:220px;box-shadow:0 10px 40px rgba(0,0,0,.6);z-index:1500">
+  <div style="padding:8px 12px;color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:700;border-bottom:1px solid #1e293b;margin-bottom:4px">Settings</div>
+  <div class="settings-item" onclick="openChangePassword()" style="padding:10px 12px;cursor:pointer;border-radius:6px;font-size:13px;color:#e2e8f0">🔑 Change Password</div>
+  <div class="settings-item" id="menuUsersBtn" onclick="openUserManagement()" style="padding:10px 12px;cursor:pointer;border-radius:6px;font-size:13px;color:#e2e8f0">👥 User Management</div>
+  <div class="settings-item" id="menuAuditBtn" onclick="openAuditLog()" style="padding:10px 12px;cursor:pointer;border-radius:6px;font-size:13px;color:#e2e8f0">📜 Audit Log</div>
+</div>
+
+<style>
+.settings-item:hover{background:#1e293b}
+.user-row{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.user-row.disabled{opacity:.5}
+.user-info{flex:1}
+.user-name{font-weight:700;color:#e2e8f0;font-size:13px}
+.user-meta{font-size:11px;color:#94a3b8;margin-top:2px}
+.role-badge{font-size:10px;font-weight:800;padding:3px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px}
+.role-admin{background:#7c3aed;color:#fff}
+.role-operator{background:#0284c7;color:#fff}
+.role-viewer{background:#475569;color:#cbd5e1}
+.user-btn{background:#334155;color:#e2e8f0;border:0;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:11px;font-weight:600;font-family:inherit}
+.user-btn:hover{background:#475569}
+.user-btn.danger{background:#7f1d1d;color:#fca5a5}
+.user-btn.danger:hover{background:#991b1b}
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.form-row input,.form-row select{width:100%;padding:10px 12px;background:#0a0e18;border:1px solid #1e293b;color:#e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box}
+.form-row input:focus,.form-row select:focus{border-color:#3b82f6}
+.role-info{font-size:11px;color:#64748b;margin-top:4px;line-height:1.5}
+</style>
+
+<!-- ══════════ USER MANAGEMENT MODAL ══════════ -->
+<div class="inc-overlay" id="usersModal">
+  <div class="inc-modal" style="max-width:700px">
+    <div class="inc-modal-head">
+      <h2>👥 User Management</h2>
+      <button class="inc-close" onclick="closeUsersModal()">✕ Close</button>
+    </div>
+    <div class="inc-modal-body">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div style="font-size:12px;color:#94a3b8">Manage dashboard users and their access levels</div>
+        <button class="ai-btn" onclick="showAddUserForm()">+ Add User</button>
+      </div>
+      <div id="usersListContainer"></div>
+      <div id="userFormContainer" style="display:none;margin-top:20px;padding:20px;background:#0a0e18;border:1px solid #1e293b;border-radius:10px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ AUDIT LOG MODAL ══════════ -->
+<div class="inc-overlay" id="auditModal">
+  <div class="inc-modal" style="max-width:900px">
+    <div class="inc-modal-head">
+      <h2>📜 Audit Log</h2>
+      <button class="inc-close" onclick="closeAuditModal()">✕ Close</button>
+    </div>
+    <div class="inc-modal-body">
+      <div id="auditLogContainer"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CHANGE PASSWORD MODAL ══════════ -->
+<div class="inc-overlay" id="changePwdModal">
+  <div class="inc-modal" style="max-width:450px">
+    <div class="inc-modal-head">
+      <h2>🔑 Change Password</h2>
+      <button class="inc-close" onclick="closeChangePwd()">✕ Close</button>
+    </div>
+    <div class="inc-modal-body">
+      <div class="form-row">
+        <label>Current Password</label>
+        <input type="password" id="pwdOld" placeholder="Enter current password"/>
+      </div>
+      <div class="form-row">
+        <label>New Password (min 8 chars)</label>
+        <input type="password" id="pwdNew" placeholder="Enter new password"/>
+      </div>
+      <div class="form-row">
+        <label>Confirm New Password</label>
+        <input type="password" id="pwdConfirm" placeholder="Re-enter new password"/>
+      </div>
+      <button class="ai-btn" onclick="submitChangePassword()">Update Password</button>
+      <div id="pwdErr" style="color:#fca5a5;margin-top:10px;font-size:12px"></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
