@@ -341,14 +341,41 @@ def alerts(limit: int = 100, user: str = Depends(require_user)):
     return {"status": "ok", "data": rows}
 
 # ---------- WebSocket ----------
-WS_CLIENTS = set()
+WS_CLIENTS = {}  # {username: set(WebSocket)} per-user buckets
+
+
+def _user_ws_bucket(username: str) -> set:
+    """Get or create user's WebSocket bucket."""
+    if username not in WS_CLIENTS:
+        WS_CLIENTS[username] = set()
+    return WS_CLIENTS[username]
 
 async def broadcast(msg: dict):
+    """Global broadcast — sends to ALL connected users."""
     dead = []
-    for ws in WS_CLIENTS:
-        try: await ws.send_json(msg)
-        except Exception: dead.append(ws)
-    for d in dead: WS_CLIENTS.discard(d)
+    for username, bucket in list(WS_CLIENTS.items()):
+        for ws in list(bucket):
+            try:
+                await ws.send_json(msg)
+            except Exception:
+                dead.append((username, ws))
+    for username, d in dead:
+        WS_CLIENTS.get(username, set()).discard(d)
+
+
+async def broadcast_to_user(username: str, msg: dict):
+    """Targeted broadcast — only to a specific user's connections."""
+    bucket = WS_CLIENTS.get(username)
+    if not bucket:
+        return
+    dead = []
+    for ws in list(bucket):
+        try:
+            await ws.send_json(msg)
+        except Exception:
+            dead.append(ws)
+    for d in dead:
+        bucket.discard(d)
 
 @app.websocket("/api/v1/ws/live")
 async def ws_live(ws: WebSocket):
@@ -398,7 +425,8 @@ async def ws_live(ws: WebSocket):
         return
     
     # Register client
-    WS_CLIENTS.add(ws)
+    bucket = _user_ws_bucket(auth["user"])
+    bucket.add(ws)
     _audit.log("ws.connect", user=auth["user"], ip=ip, success=True)
     
     # Send ack
@@ -416,7 +444,12 @@ async def ws_live(ws: WebSocket):
     except Exception:
         pass
     finally:
-        WS_CLIENTS.discard(ws)
+        # Remove from per-user bucket
+        _bucket = WS_CLIENTS.get(auth["user"])
+        if _bucket:
+            _bucket.discard(ws)
+            if not _bucket:
+                WS_CLIENTS.pop(auth["user"], None)
         _audit.log("ws.disconnect", user=auth["user"], ip=ip, success=True)
 
 # ---------- History Aggregation (Phase 2) ----------
@@ -795,16 +828,12 @@ def get_my_preferences_audit(
 
 
 async def _broadcast_pref_update(username: str, prefs: dict):
-    """Send preference update to all of user's WS connections."""
-    # Reuse existing broadcast if available; will be enhanced in STEP 3
-    try:
-        await broadcast({
-            "type": "preferences.updated",
-            "username": username,
-            "data": prefs
-        })
-    except Exception:
-        pass
+    """Send preference update to ONLY this user's WS connections."""
+    await broadcast_to_user(username, {
+        "type": "preferences.updated",
+        "username": username,
+        "data": prefs
+    })
 
 
 # ---------- Static frontend ----------

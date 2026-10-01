@@ -603,6 +603,8 @@ function connectWS() {
   if (!TOKEN) return;
   const proto = location.protocol === "https:" ? "wss" : "ws";
   WS = new WebSocket(proto + "://" + location.host + "/api/v1/ws/live");
+  window.WS = WS;              // expose globally
+  window.__ws = WS;            // alias for convenience
   let authed = false;
 
   WS.onopen = function () {
