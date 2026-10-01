@@ -1,0 +1,116 @@
+/* ═══════════════════════════════════════════════════════════════
+   SNGLP Monitor — Design Tokens
+   Light + Dark themes, spacing, typography, elevation
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ─── Dark theme (default) ─── */
+  --bg-canvas:     #0A0F1C;
+  --bg-surface:    #111827;
+  --bg-elevated:   #161F31;
+  --bg-hover:      #1E293B;
+  --border-subtle: #1F2937;
+  --border-strong: #334155;
+
+  --fg-primary:    #F1F5F9;
+  --fg-secondary:  #94A3B8;
+  --fg-tertiary:   #64748B;
+  --fg-disabled:   #475569;
+
+  --accent-blue:   #60A5FA;
+  --accent-teal:   #2DD4BF;
+  --accent-yellow: #FACC15;
+  --accent-rose:   #FB7185;
+  --accent-green:  #4ADE80;
+  --accent-violet: #A78BFA;
+
+  --glow-info:     rgba(96,165,250,0.25);
+  --glow-warn:     rgba(250,204,21,0.28);
+  --glow-danger:   rgba(251,113,133,0.28);
+
+  /* ─── Spacing (8px base) ─── */
+  --sp-1: 4px;   --sp-2: 8px;   --sp-3: 12px;  --sp-4: 16px;
+  --sp-5: 24px;  --sp-6: 32px;  --sp-8: 48px;  --sp-10: 64px; --sp-12: 80px;
+
+  /* ─── Radius ─── */
+  --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px; --radius-pill: 999px;
+
+  /* ─── Typography ─── */
+  --font-ui:   'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+  --fs-display: 32px;  --lh-display: 40px;
+  --fs-h1: 24px;       --lh-h1: 32px;
+  --fs-h2: 18px;       --lh-h2: 28px;
+  --fs-body: 14px;     --lh-body: 22px;
+  --fs-label: 12px;    --lh-label: 16px;   --tracking-label: .04em;
+  --fs-meta: 12px;     --lh-meta: 16px;
+  --fs-caption: 11px;  --lh-caption: 14px;
+
+  /* ─── Elevation ─── */
+  --elev-0: none;
+  --elev-1: 0 0 0 1px #1F2937;
+  --elev-2: 0 8px 24px rgba(0,0,0,0.4);
+  --elev-3: 0 16px 48px rgba(0,0,0,0.5);
+
+  /* ─── Density (comfortable default) ─── */
+  --row-height:    56px;
+  --card-padding:  20px;
+  --card-gap:      16px;
+  --btn-height:    36px;
+  --font-body:     14px;
+  --font-kpi:      32px;
+  --kpi-min-height: 96px;
+  --icon-size:     20px;
+  --sidebar-width: 240px;
+}
+
+/* ═══ Light theme override ═══ */
+html[data-theme="light"], html.theme-clean, html.theme-light {
+  --bg-canvas:     #F8FAFC;
+  --bg-surface:    #FFFFFF;
+  --bg-elevated:   #FFFFFF;
+  --bg-hover:      #F1F5F9;
+  --border-subtle: #E2E8F0;
+  --border-strong: #CBD5E1;
+
+  --fg-primary:    #0F172A;
+  --fg-secondary:  #475569;
+  --fg-tertiary:   #64748B;
+  --fg-disabled:   #94A3B8;
+
+  --accent-blue:   #1D4ED8;
+  --accent-teal:   #0F766E;
+  --accent-yellow: #B45309;
+  --accent-rose:   #BE123C;
+  --accent-green:  #047857;
+  --accent-violet: #6D28D9;
+
+  --glow-info:     transparent;
+  --glow-warn:     transparent;
+  --glow-danger:   transparent;
+
+  --elev-1: 0 1px 2px rgba(15,23,42,0.06), 0 0 0 1px #E2E8F0;
+  --elev-2: 0 8px 24px rgba(15,23,42,0.08);
+  --elev-3: 0 16px 48px rgba(15,23,42,0.12);
+}
+
+/* ═══ Universal base ═══ */
+html, body {
+  background: var(--bg-canvas);
+  color: var(--fg-primary);
+  font-family: var(--font-ui);
+  font-size: var(--font-body);
+  line-height: var(--lh-body);
+  margin: 0;
+}
+*, *::before, *::after { box-sizing: border-box; }
+
+/* Utility text roles */
+.t-display { font-size: var(--fs-display); line-height: var(--lh-display); font-weight: 600; letter-spacing: -0.02em; }
+.t-h1      { font-size: var(--fs-h1);      line-height: var(--lh-h1);      font-weight: 600; }
+.t-h2      { font-size: var(--fs-h2);      line-height: var(--lh-h2);      font-weight: 600; }
+.t-body    { font-size: var(--fs-body);    line-height: var(--lh-body); }
+.t-label   { font-size: var(--fs-label);   line-height: var(--lh-label);   font-weight: 600; text-transform: uppercase; letter-spacing: var(--tracking-label); color: var(--fg-secondary); }
+.t-meta    { font-size: var(--fs-meta);    line-height: var(--lh-meta);    color: var(--fg-secondary); }
+.t-mono    { font-family: var(--font-mono); }

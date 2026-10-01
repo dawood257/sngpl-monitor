@@ -1,0 +1,47 @@
+/* ═══════════════════════════════════════════════════════════════
+   Density modes — driven by html[data-layout]
+   ═══════════════════════════════════════════════════════════════ */
+
+html[data-layout="comfortable"] {
+  --row-height:     56px;
+  --card-padding:   20px;
+  --card-gap:       16px;
+  --btn-height:     36px;
+  --font-body:      14px;
+  --font-kpi:       32px;
+  --kpi-min-height: 96px;
+  --icon-size:      20px;
+  --sidebar-width:  240px;
+}
+
+html[data-layout="compact"] {
+  --row-height:     40px;
+  --card-padding:   12px;
+  --card-gap:       8px;
+  --btn-height:     28px;
+  --font-body:      13px;
+  --font-kpi:       24px;
+  --kpi-min-height: 72px;
+  --icon-size:      16px;
+  --sidebar-width:  200px;
+}
+
+html[data-layout="wide"] {
+  --row-height:     64px;
+  --card-padding:   24px;
+  --card-gap:       20px;
+  --font-body:      15px;
+  --font-kpi:       36px;
+  --kpi-min-height: 104px;
+  --sidebar-width:  260px;
+}
+
+/* ─── Mobile overrides — never below 44px tap target ─── */
+@media (max-width: 640px) {
+  html[data-layout] {
+    --row-height:  64px;
+    --btn-height:  44px;
+    --card-padding: 16px;
+    --font-body:   15px;
+  }
+}

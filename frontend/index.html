@@ -354,6 +354,24 @@ td{font-variant-numeric:tabular-nums}
 <link rel="stylesheet" href="/themes/compact.css">
 <link rel="stylesheet" href="/themes/dark.css">
 <link rel="stylesheet" href="/themes/high-contrast.css">
+<link rel="stylesheet" href="/design-system/tokens.css">
+<link rel="stylesheet" href="/design-system/density.css">
+<link rel="stylesheet" href="/design-system/components.css">
+<link rel="stylesheet" href="/design-system/motion.css">
+<script id="data-theme-sync">
+(function(){
+  try {
+    var p = JSON.parse(localStorage.getItem('sngpl_prefs_cache') || '{}');
+    var html = document.documentElement;
+    var theme = p.theme || 'default';
+    // Map legacy theme names -> new design-system theme attribute
+    var lightThemes = { clean: 1, light: 1 };
+    var darkThemes  = { default: 1, compact: 1, dark: 1, 'high-contrast': 1 };
+    if (lightThemes[theme])      html.setAttribute('data-theme', 'light');
+    else if (darkThemes[theme])  html.setAttribute('data-theme', 'dark');
+  } catch(e){}
+})();
+</script>
 </head>
 <body>
 
