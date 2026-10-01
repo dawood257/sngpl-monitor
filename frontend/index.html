@@ -399,6 +399,8 @@ td{font-variant-numeric:tabular-nums}
 })();
 </script>
 
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="alternate icon" href="/favicon.svg">
 </head>
 <body>
 
@@ -464,7 +466,7 @@ td{font-variant-numeric:tabular-nums}
         <div class="login-form-group">
           <label>Password</label>
           <div style="position:relative">
-            <input id="pass" type="password" placeholder="Enter your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" style="padding-right:44px"/>
+            <input id="pass" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" style="padding-right:44px"/>
             <button type="button" onclick="togglePassword()" id="pwdToggle" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:transparent;border:0;color:#64748b;cursor:pointer;font-size:16px;padding:4px" title="Show/hide password">👁</button>
           </div>
         </div>

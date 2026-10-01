@@ -836,6 +836,24 @@ async def _broadcast_pref_update(username: str, prefs: dict):
     })
 
 
+# ---------- Favicon shortcut (browsers auto-request this) ----------
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    from fastapi.responses import FileResponse
+    import os
+    svg = os.path.join(FRONTEND_DIR, "favicon.svg")
+    if os.path.isfile(svg):
+        return FileResponse(svg, media_type="image/svg+xml")
+    # Ultimate fallback: 1x1 transparent PNG
+    from fastapi.responses import Response
+    png = bytes.fromhex(
+        "89504E470D0A1A0A0000000D4948445200000001000000010806000000"
+        "1F15C4890000000A49444154789C6300010000000500010D0A2DB40000"
+        "000049454E44AE426082"
+    )
+    return Response(content=png, media_type="image/png")
+
+
 # ---------- Static frontend ----------
 FRONTEND_DIR = CFG["frontend"]["dir"]
 if os.path.isdir(FRONTEND_DIR):
