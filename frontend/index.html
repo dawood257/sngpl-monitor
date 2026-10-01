@@ -729,7 +729,7 @@ function connectWS() {
     if (event.code === 4429) {
       console.warn("WS rate limited — retry in 60s");
       setWsState("recon");
-      setTimeout(connectWS, 60000);
+      setTimeout(connectWS, 15000);
       return;
     }
     // Normal close — reconnect
