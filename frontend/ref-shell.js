@@ -1,11 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════
-   Reference Shell — rebuild dashboard layout to match reference
-   Pulls live data from existing DOM (#kpiTotal, .server-card, etc.)
+   Reference Shell v2 — robust data extraction
    ═══════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
-
-  var _interval = null;
 
   function sparkSVG(color) {
     var pts = [];
@@ -14,8 +11,7 @@
       pts.push(i * 6 + ',' + y.toFixed(1));
     }
     return '<svg viewBox="0 0 180 30" preserveAspectRatio="none">' +
-      '<polyline fill="none" stroke="' + color + '" stroke-width="1.5" points="' + pts.join(' ') + '"/>' +
-      '</svg>';
+      '<polyline fill="none" stroke="' + color + '" stroke-width="1.5" points="' + pts.join(' ') + '"/></svg>';
   }
 
   function activitySVG() {
@@ -27,8 +23,7 @@
     return '<svg viewBox="0 0 780 140" preserveAspectRatio="none">' +
       '<line x1="0" y1="30" x2="780" y2="30" stroke="#FB7185" stroke-dasharray="3,4" stroke-opacity=".5"/>' +
       '<polyline fill="none" stroke="#60A5FA" stroke-width="1.6" points="' + a.join(' ') + '"/>' +
-      '<polyline fill="none" stroke="#2DD4BF" stroke-width="1.6" stroke-dasharray="4,3" points="' + b.join(' ') + '"/>' +
-      '</svg>';
+      '<polyline fill="none" stroke="#2DD4BF" stroke-width="1.6" stroke-dasharray="4,3" points="' + b.join(' ') + '"/></svg>';
   }
 
   function buildShell() {
@@ -93,24 +88,24 @@
       '      <div class="ref-gauges">',
       '        <div class="ref-gauge">',
       '          <svg viewBox="0 0 100 55">',
-      '            <path d="M5,50 A45,45 0 0 1 95,50" fill="none" stroke="#1F2937" stroke-width="5"/>',
-      '            <path id="refGaugeCpu" d="M5,50 A45,45 0 0 1 95,50" fill="none" stroke="#60A5FA" stroke-width="5" stroke-dasharray="0,200"/>',
+      '            <path d="M8,50 A42,42 0 0 1 92,50" fill="none" stroke="#1F2937" stroke-width="6"/>',
+      '            <path id="refGaugeCpu" d="M8,50 A42,42 0 0 1 92,50" fill="none" stroke="#60A5FA" stroke-width="6" stroke-dasharray="0,132"/>',
       '          </svg>',
       '          <div class="ref-gauge__label">CPU</div>',
       '          <div class="ref-gauge__val" id="refCpuVal">0%</div>',
       '        </div>',
       '        <div class="ref-gauge">',
       '          <svg viewBox="0 0 100 55">',
-      '            <path d="M5,50 A45,45 0 0 1 95,50" fill="none" stroke="#1F2937" stroke-width="5"/>',
-      '            <path id="refGaugeMem" d="M5,50 A45,45 0 0 1 95,50" fill="none" stroke="#FACC15" stroke-width="5" stroke-dasharray="0,200"/>',
+      '            <path d="M8,50 A42,42 0 0 1 92,50" fill="none" stroke="#1F2937" stroke-width="6"/>',
+      '            <path id="refGaugeMem" d="M8,50 A42,42 0 0 1 92,50" fill="none" stroke="#FACC15" stroke-width="6" stroke-dasharray="0,132"/>',
       '          </svg>',
       '          <div class="ref-gauge__label">Memory</div>',
       '          <div class="ref-gauge__val" id="refMemVal">0%</div>',
       '        </div>',
       '        <div class="ref-gauge">',
       '          <svg viewBox="0 0 100 55">',
-      '            <path d="M5,50 A45,45 0 0 1 95,50" fill="none" stroke="#1F2937" stroke-width="5"/>',
-      '            <path id="refGaugeDisk" d="M5,50 A45,45 0 0 1 95,50" fill="none" stroke="#FB7185" stroke-width="5" stroke-dasharray="0,200"/>',
+      '            <path d="M8,50 A42,42 0 0 1 92,50" fill="none" stroke="#1F2937" stroke-width="6"/>',
+      '            <path id="refGaugeDisk" d="M8,50 A42,42 0 0 1 92,50" fill="none" stroke="#FB7185" stroke-width="6" stroke-dasharray="0,132"/>',
       '          </svg>',
       '          <div class="ref-gauge__label">Disk</div>',
       '          <div class="ref-gauge__val" id="refDiskVal">0%</div>',
@@ -143,142 +138,138 @@
     app.appendChild(shell);
     document.body.classList.add('ref-mode');
 
-    // Wire sidebar buttons
-    var settingsBtn = document.getElementById('refSettingsBtn');
-    if (settingsBtn) settingsBtn.onclick = function () {
+    var sb = document.getElementById('refSettingsBtn');
+    if (sb) sb.onclick = function () {
       var s = document.getElementById('sngplPrefsBtn');
       if (s) s.click();
       else if (window.__settingsUI) window.__settingsUI.open();
     };
-    var refreshBtn = document.getElementById('refRefreshBtn');
-    if (refreshBtn) refreshBtn.onclick = function () {
-      if (window.refresh) window.refresh();
-      else location.reload();
-    };
-    var logoutBtn = document.getElementById('refLogout');
-    if (logoutBtn) logoutBtn.onclick = function () {
-      if (window.logout) window.logout();
-    };
-    // Incidents scroll
-    var navInc = document.getElementById('refNavIncidents');
-    if (navInc) navInc.onclick = function () {
-      var el = document.getElementById('refTicketList');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    };
-    // Servers scroll
-    var navSrv = document.getElementById('refNavServers');
-    if (navSrv) navSrv.onclick = function () {
-      var el = document.getElementById('refDiskList');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    };
+    var rb = document.getElementById('refRefreshBtn');
+    if (rb) rb.onclick = function () { if (window.refresh) window.refresh(); else location.reload(); };
+    var lo = document.getElementById('refLogout');
+    if (lo) lo.onclick = function () { if (window.logout) window.logout(); };
   }
 
-  function val(id) {
-    var el = document.getElementById(id);
-    return el ? el.textContent.trim() : '—';
-  }
-
-  function setText(id, txt) {
-    var el = document.getElementById(id);
-    if (el) el.textContent = txt;
+  /* ─── Extract all "Label X%" pairs from a card's inner text ─── */
+  function extractMetrics(card) {
+    var out = { cpu: null, mem: null, disk: null };
+    // Strategy 1: look for label element followed by XX% element (siblings)
+    var candidates = card.querySelectorAll('*');
+    candidates.forEach(function (el) {
+      if (el.children.length > 0) return; // leaf only
+      var t = (el.textContent || '').trim();
+      var m = t.match(/^(\d{1,3})\s*%$/);
+      if (!m) return;
+      var v = parseInt(m[1], 10);
+      if (v > 100) return;
+      // Look backwards through previous siblings and parent text
+      var ctx = '';
+      var sib = el.previousElementSibling;
+      while (sib && ctx.length < 40) {
+        ctx = (sib.textContent || '').trim() + ' ' + ctx;
+        sib = sib.previousElementSibling;
+      }
+      if (!ctx && el.parentElement) {
+        var p = el.parentElement;
+        var first = p.firstElementChild;
+        if (first && first !== el) ctx = (first.textContent || '').trim();
+      }
+      ctx = ctx.toLowerCase();
+      if (out.cpu === null && /cpu/.test(ctx)) out.cpu = v;
+      else if (out.mem === null && /(ram|mem)/.test(ctx)) out.mem = v;
+      else if (out.disk === null && /disk/.test(ctx)) out.disk = v;
+    });
+    // Strategy 2 (fallback): scan inner text for "CPU 75%" pattern
+    var inner = (card.textContent || '').replace(/\s+/g, ' ');
+    if (out.cpu === null)  { var mc = inner.match(/CPU\s*[:]?\s*(\d{1,3})\s*%/i); if (mc) out.cpu = +mc[1]; }
+    if (out.mem === null)  { var mm = inner.match(/(?:RAM|Memory|Mem)\s*[:]?\s*(\d{1,3})\s*%/i); if (mm) out.mem = +mm[1]; }
+    if (out.disk === null) { var md = inner.match(/Disk\s*[:]?\s*(\d{1,3})\s*%/i); if (md) out.disk = +md[1]; }
+    return out;
   }
 
   function setGauge(pid, pct) {
     var el = document.getElementById(pid);
     if (!el) return;
-    // Half-circle radius 45 → circumference = π*45 ≈ 141.37
-    var len = (Math.max(0, Math.min(100, pct)) / 100) * 141.37;
-    el.setAttribute('stroke-dasharray', len.toFixed(1) + ',200');
+    var len = (Math.max(0, Math.min(100, pct)) / 100) * 132; // A42 arc length ≈ 132
+    el.setAttribute('stroke-dasharray', len.toFixed(1) + ',132');
+  }
+
+  function textOf(id) {
+    var el = document.getElementById(id);
+    return el ? (el.textContent || '').trim() : '';
+  }
+
+  function setText(id, v) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = v;
   }
 
   function refreshData() {
-    // KPI numbers from existing DOM
-    setText('refValTotal',     val('kpiTotal')     || val('kpiHealthy') || '—');
-    setText('refValHealthy',   val('kpiHealthy')   || '—');
-    setText('refValIncidents', val('kpiWarning')   || val('kpiCritical') || '0');
-
-    // Sessions — from sessions button badge
-    var sessBadge = document.getElementById('ssCount');
-    setText('refValSessions', sessBadge ? sessBadge.textContent.trim() : '0');
+    // KPI values
+    setText('refValTotal',     textOf('kpiTotal') || textOf('kpiHealthy') || '—');
+    setText('refValHealthy',   textOf('kpiHealthy') || '—');
+    var inc = (parseInt(textOf('kpiWarning') || '0', 10) || 0) +
+              (parseInt(textOf('kpiCritical') || '0', 10) || 0);
+    setText('refValIncidents', inc);
+    var sb = document.getElementById('ssCount');
+    setText('refValSessions', sb ? sb.textContent.trim() : '0');
 
     // Server cards → gauges + disk list
     var cards = document.querySelectorAll('.server-card');
-    var cpuVals = [], memVals = [], diskVals = [];
-    var diskRows = [];
+    var cpuV = [], memV = [], diskV = [], diskRows = [];
 
     cards.forEach(function (card) {
       var nameEl = card.querySelector('.server-name, h3, .name, [class*="name"]');
-      var name = nameEl ? nameEl.textContent.trim() : '—';
-
-      // find metric values — pattern: label then XX%
-      var pctNodes = card.querySelectorAll('*');
-      var localCpu = null, localMem = null, localDisk = null;
-      pctNodes.forEach(function (n) {
-        if (n.children.length > 0) return; // leaf only
-        var t = (n.textContent || '').trim();
-        var m = t.match(/^(\d+)%$/);
-        if (!m) return;
-        var v = parseInt(m[1], 10);
-        var prev = n.previousElementSibling;
-        var lbl = prev ? (prev.textContent || '').trim().toLowerCase() : '';
-        // also try parent label
-        if (!lbl && n.parentElement) {
-          var p = n.parentElement;
-          lbl = (p.textContent || '').toLowerCase();
-        }
-        if (/cpu/.test(lbl) && localCpu === null) localCpu = v;
-        else if (/(ram|mem)/.test(lbl) && localMem === null) localMem = v;
-        else if (/disk/.test(lbl) && localDisk === null) localDisk = v;
-      });
-
-      if (localCpu !== null) cpuVals.push(localCpu);
-      if (localMem !== null) memVals.push(localMem);
-      if (localDisk !== null) {
-        diskVals.push(localDisk);
-        diskRows.push({ name: name, pct: localDisk });
-      }
+      var name = nameEl ? nameEl.textContent.trim().split(/\s+/)[0] : '—';
+      var m = extractMetrics(card);
+      if (m.cpu  !== null) cpuV.push(m.cpu);
+      if (m.mem  !== null) memV.push(m.mem);
+      if (m.disk !== null) { diskV.push(m.disk); diskRows.push({ name: name, pct: m.disk }); }
     });
 
-    function avg(a) { return a.length ? Math.round(a.reduce(function (x, y) { return x + y; }, 0) / a.length) : 0; }
-    var cA = avg(cpuVals), mA = avg(memVals), dA = avg(diskVals);
+    function avg(a) {
+      return a.length ? Math.round(a.reduce(function (x, y) { return x + y; }, 0) / a.length) : 0;
+    }
+    var cA = avg(cpuV), mA = avg(memV), dA = avg(diskV);
 
-    setGauge('refGaugeCpu', cA);
-    setGauge('refGaugeMem', mA);
+    setGauge('refGaugeCpu',  cA);
+    setGauge('refGaugeMem',  mA);
     setGauge('refGaugeDisk', dA);
     setText('refCpuVal',  cA + '%');
     setText('refMemVal',  mA + '%');
     setText('refDiskVal', dA + '%');
 
-    // Disk list — sort by usage desc, top 8
+    // Disk list — sorted desc
     diskRows.sort(function (a, b) { return b.pct - a.pct; });
-    var diskHtml = '';
+    var dh = '';
     diskRows.slice(0, 8).forEach(function (r) {
       var color = r.pct >= 85 ? 'var(--accent-rose)'
                 : r.pct >= 70 ? 'var(--accent-yellow)'
                 : 'var(--accent-blue)';
-      diskHtml += '<div class="ref-disk-row">' +
-        '<span class="ref-disk-name">' + r.name + '</span>' +
+      dh += '<div class="ref-disk-row">' +
+        '<span class="ref-disk-name" title="' + r.name + '">' + r.name + '</span>' +
         '<div class="ref-disk-bar"><div style="width:' + r.pct + '%;background:' + color + '"></div></div>' +
         '<span class="ref-disk-val">' + r.pct + '%</span>' +
         '</div>';
     });
-    var diskList = document.getElementById('refDiskList');
-    if (diskList && diskHtml) diskList.innerHTML = diskHtml;
+    var dl = document.getElementById('refDiskList');
+    if (dl) dl.innerHTML = dh || '<div class="ref-ticket-empty">No disk data</div>';
 
-    // Ticket list — from incident items
-    var incs = document.querySelectorAll('.incident-item, .incident-row, [class*="incident"]');
-    var tHtml = '';
-    var real = 0;
-    incs.forEach(function (inc) {
+    // Tickets — from incident center items
+    var incItems = document.querySelectorAll('#incidentCenter .incident-item, .incident-item, .incident-row');
+    var seen = {};
+    var th = '', real = 0;
+    incItems.forEach(function (inc) {
       var titleEl = inc.querySelector('.incident-title, h4, h3, .title, [class*="title"]');
       var subEl   = inc.querySelector('.incident-sub, .sub, .meta, [class*="sub"], [class*="meta"]');
-      var title = titleEl ? titleEl.textContent.trim() : (inc.textContent || '').trim().split('\n')[0];
+      var title = titleEl ? titleEl.textContent.trim() : (inc.textContent || '').trim().split('\n')[0].slice(0, 60);
       var sub   = subEl ? subEl.textContent.trim() : '';
-      if (!title) return;
+      if (!title || seen[title]) return;
+      seen[title] = 1;
       real++;
       var isCrit = /critical|crit|active|down/i.test(inc.className + ' ' + title);
       var edge = isCrit ? 'var(--accent-rose)' : 'var(--accent-yellow)';
-      tHtml += '<div class="ref-ticket-row">' +
+      th += '<div class="ref-ticket-row">' +
         '<div class="ref-ticket-row__edge" style="background:' + edge + '"></div>' +
         '<div>' +
           '<div class="ref-ticket-row__title">' + title + '</div>' +
@@ -287,13 +278,9 @@
         '<div class="ref-ticket-row__meta">' + (isCrit ? 'P1' : 'P2') + '</div>' +
         '</div>';
     });
-    var tList = document.getElementById('refTicketList');
-    if (tList) {
-      if (real === 0) {
-        tList.innerHTML = '<div class="ref-ticket-empty">No active incidents</div>';
-      } else {
-        tList.innerHTML = tHtml;
-      }
+    var tl = document.getElementById('refTicketList');
+    if (tl) {
+      tl.innerHTML = real ? th : '<div class="ref-ticket-empty">No active incidents</div>';
     }
   }
 
@@ -303,8 +290,8 @@
       tries++;
       if (document.getElementById('app') && document.getElementById('kpiTotal')) {
         buildShell();
-        refreshData();
-        _interval = setInterval(refreshData, 3000);
+        setTimeout(refreshData, 800);
+        setInterval(refreshData, 3000);
       } else if (tries < 120) {
         setTimeout(tryOnce, 500);
       }
