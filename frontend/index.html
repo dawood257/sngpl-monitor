@@ -399,29 +399,6 @@ td{font-variant-numeric:tabular-nums}
 })();
 </script>
 
-<!-- ═══ Dashboard V3 Loader ═══ -->
-<script>
-(function(){
-  try {
-    var p = new URLSearchParams(location.search);
-    var v = p.get('v3');
-    if (v === '0') { localStorage.removeItem('sngpl_dashboard_v3'); }
-    if (v === 'save') { localStorage.setItem('sngpl_dashboard_v3','1'); }
-    var enabled = (v === '1' || v === 'save' || localStorage.getItem('sngpl_dashboard_v3') === '1');
-    if (enabled) {
-      document.documentElement.setAttribute('data-dashboard', 'v3');
-      var l = document.createElement('link');
-      l.rel = 'stylesheet'; l.href = '/dashboard-v3.css';
-      document.head.appendChild(l);
-      var s = document.createElement('script');
-      s.src = '/dashboard-v3.js';
-      s.defer = true;
-      document.head.appendChild(s);
-      console.log('[v3] enabled');
-    }
-  } catch(e){}
-})();
-</script>
 </head>
 <body>
 
