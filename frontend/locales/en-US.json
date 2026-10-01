@@ -1,0 +1,23 @@
+{
+  "app.title": "SNGLP Monitor",
+  "nav.dashboard": "Dashboard",
+  "nav.sessions": "Sessions",
+  "nav.incidents": "Incidents",
+  "settings.title": "Preferences",
+  "settings.subtitle": "Customize your experience",
+  "settings.language": "Language",
+  "settings.theme": "Theme",
+  "settings.layout": "Layout",
+  "settings.saved": "Preferences saved",
+  "settings.saving": "Saving...",
+  "settings.error": "Could not save",
+  "settings.close": "Close",
+  "theme.default": "Default",
+  "theme.clean": "Clean",
+  "theme.compact": "Compact",
+  "theme.dark": "Dark",
+  "theme.high-contrast": "High Contrast",
+  "layout.comfortable": "Comfortable",
+  "layout.compact": "Compact",
+  "layout.wide": "Wide"
+}

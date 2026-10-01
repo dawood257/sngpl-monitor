@@ -1,0 +1,23 @@
+{
+  "app.title": "ایس این جی پی ایل مانیٹر",
+  "nav.dashboard": "ڈیش بورڈ",
+  "nav.sessions": "سیشنز",
+  "nav.incidents": "واقعات",
+  "settings.title": "ترتیبات",
+  "settings.subtitle": "اپنا تجربہ حسبِ منشا بنائیں",
+  "settings.language": "زبان",
+  "settings.theme": "تھیم",
+  "settings.layout": "ترتیب",
+  "settings.saved": "ترجیحات محفوظ ہو گئیں",
+  "settings.saving": "محفوظ ہو رہا ہے...",
+  "settings.error": "محفوظ نہیں ہو سکا",
+  "settings.close": "بند کریں",
+  "theme.default": "ڈیفالٹ",
+  "theme.clean": "صاف",
+  "theme.compact": "کمپیکٹ",
+  "theme.dark": "گہرا",
+  "theme.high-contrast": "ہائی کنٹراسٹ",
+  "layout.comfortable": "آرام دہ",
+  "layout.compact": "کمپیکٹ",
+  "layout.wide": "چوڑا"
+}

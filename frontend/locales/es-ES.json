@@ -1,0 +1,23 @@
+{
+  "app.title": "Monitor SNGLP",
+  "nav.dashboard": "Panel",
+  "nav.sessions": "Sesiones",
+  "nav.incidents": "Incidentes",
+  "settings.title": "Preferencias",
+  "settings.subtitle": "Personaliza tu experiencia",
+  "settings.language": "Idioma",
+  "settings.theme": "Tema",
+  "settings.layout": "Diseño",
+  "settings.saved": "Preferencias guardadas",
+  "settings.saving": "Guardando...",
+  "settings.error": "No se pudo guardar",
+  "settings.close": "Cerrar",
+  "theme.default": "Predeterminado",
+  "theme.clean": "Limpio",
+  "theme.compact": "Compacto",
+  "theme.dark": "Oscuro",
+  "theme.high-contrast": "Alto contraste",
+  "layout.comfortable": "Cómodo",
+  "layout.compact": "Compacto",
+  "layout.wide": "Ancho"
+}

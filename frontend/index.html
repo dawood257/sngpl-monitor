@@ -349,6 +349,11 @@ td{font-variant-numeric:tabular-nums}
 @keyframes ledBlink{0%,100%{opacity:.3}50%{opacity:1}}
 </style>
 <link rel="stylesheet" href="/dashboard-visuals.css?v=3"/>
+<link rel="stylesheet" href="/themes/default.css">
+<link rel="stylesheet" href="/themes/clean.css">
+<link rel="stylesheet" href="/themes/compact.css">
+<link rel="stylesheet" href="/themes/dark.css">
+<link rel="stylesheet" href="/themes/high-contrast.css">
 </head>
 <body>
 
@@ -1416,6 +1421,7 @@ if (TOKEN) startApp();
 document.getElementById("pass").addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
 </script>
 <script src="/preferences.js"></script>
+<script src="/settings-ui.js"></script>
 <script src="performance.js"></script>
 
 <!-- ══════════ INCIDENT CENTER OVERLAY ══════════ -->

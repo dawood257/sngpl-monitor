@@ -1,0 +1,10 @@
+/* Default — current dark blue (baseline, no overrides needed) */
+html.theme-default {
+  --sngpl-bg: #0f172a;
+  --sngpl-bg2: #1e293b;
+  --sngpl-bg3: #111c33;
+  --sngpl-fg: #f1f5f9;
+  --sngpl-fg2: #94a3b8;
+  --sngpl-accent: #3b82f6;
+  --sngpl-border: #334155;
+}
