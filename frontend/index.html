@@ -1,6 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+/* SNGLP prefs — anti-flash boot: apply cache before first paint */
+(function(){
+  try {
+    var p = JSON.parse(localStorage.getItem('sngpl_prefs_cache') || '{}');
+    var theme  = p.theme  || 'default';
+    var layout = p.layout || 'comfortable';
+    var lang   = p.language || 'en-US';
+    var html = document.documentElement;
+    html.className = 'theme-' + theme;
+    html.setAttribute('data-layout', layout);
+    html.setAttribute('lang', lang);
+    html.setAttribute('dir', lang === 'ur-PK' ? 'rtl' : 'ltr');
+  } catch(e){}
+})();
+</script>
+
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <meta name="theme-color" content="#0f172a"/>
@@ -619,6 +636,14 @@ function connectWS() {
   WS.onmessage = function (e) {
     let m;
     try { m = JSON.parse(e.data); } catch (x) { return; }
+
+    // ── Preferences update → forward to module ──
+    if (m.type === 'preferences.updated') {
+      if (window.__prefs && window.__prefs.applyFromServer) {
+        window.__prefs.applyFromServer(m.data);
+      }
+      return;
+    }
 
     // Auth ack
     if (m.type === "auth_ok") {
@@ -1390,6 +1415,7 @@ function renderDetail() {
 if (TOKEN) startApp();
 document.getElementById("pass").addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
 </script>
+<script src="/preferences.js"></script>
 <script src="performance.js"></script>
 
 <!-- ══════════ INCIDENT CENTER OVERLAY ══════════ -->
