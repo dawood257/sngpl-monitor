@@ -72,6 +72,7 @@ import ai_insights as _ai
 import ratelimit as _rl
 import audit as _audit
 import users as _users
+import preferences as _prefs
 
 # ---------- DB ----------
 def init_db():
@@ -161,6 +162,7 @@ async def lifespan(app: FastAPI):
     _inc.init_incidents_db(DB_PATH)
     _audit.init(DB_PATH)
     _users.init(DB_PATH)
+    _prefs.init(DB_PATH)
     # Migrate admin from config if no users exist
     if _users.count_users() == 0:
         _users.create_user(ADMIN_USER, "ChangeMe@2026", role="admin",
