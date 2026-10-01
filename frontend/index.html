@@ -372,6 +372,32 @@ td{font-variant-numeric:tabular-nums}
   } catch(e){}
 })();
 </script>
+
+<!-- ═══ Dashboard V2 Preview Loader ═══ -->
+<script>
+(function(){
+  try {
+    var p = new URLSearchParams(location.search);
+    var enable = p.get('v2') === '1' || localStorage.getItem('sngpl_dashboard_v2') === '1';
+    if (p.get('v2') === '0') {
+      localStorage.removeItem('sngpl_dashboard_v2');
+      enable = false;
+    }
+    if (p.get('v2') === 'save') {
+      localStorage.setItem('sngpl_dashboard_v2', '1');
+      enable = true;
+    }
+    if (enable) {
+      document.documentElement.setAttribute('data-dashboard', 'v2');
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = '/dashboard-v2.css';
+      document.head.appendChild(link);
+      console.log('[dash-v2] enabled');
+    }
+  } catch(e){}
+})();
+</script>
 </head>
 <body>
 
