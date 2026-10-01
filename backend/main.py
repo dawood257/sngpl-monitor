@@ -720,6 +720,93 @@ def get_server_sessions(server_name: str, user: str = Depends(require_user)):
     }}
 
 
+# ---------- User Preferences API ----------
+class PrefUpdateReq(BaseModel):
+    language: Optional[str] = None
+    theme:    Optional[str] = None
+    layout:   Optional[str] = None
+
+@app.get("/api/v1/preferences/me")
+def get_my_preferences(auth: dict = Depends(require_user)):
+    """Get current user's preferences."""
+    user_id = auth.get("user_id")
+    if not user_id:
+        # Fallback: lookup by username
+        u = _users.get_user_by_name(auth["user"])
+        if not u:
+            raise HTTPException(404, "User not found")
+        user_id = u["id"]
+    return {"status": "ok", "data": _prefs.get_preferences(user_id)}
+
+
+@app.patch("/api/v1/preferences/me")
+async def update_my_preferences(
+    body: PrefUpdateReq,
+    request: Request,
+    auth: dict = Depends(require_user)
+):
+    """Update current user's preferences (partial)."""
+    user_id = auth.get("user_id")
+    if not user_id:
+        u = _users.get_user_by_name(auth["user"])
+        if not u:
+            raise HTTPException(404, "User not found")
+        user_id = u["id"]
+
+    try:
+        result = _prefs.update_preferences(
+            user_id,
+            language=body.language,
+            theme=body.theme,
+            layout=body.layout,
+            source=_rl.get_client_ip(request) if hasattr(_rl, "get_client_ip") else "api"
+        )
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+
+    # Broadcast to user's other sessions (best-effort)
+    try:
+        await _broadcast_pref_update(auth["user"], result)
+    except Exception as e:
+        print("[prefs] broadcast failed:", e)
+
+    return {"status": "ok", "data": result}
+
+
+@app.get("/api/v1/preferences/options")
+def get_preference_options():
+    """Available languages/themes/layouts. Public — no auth needed."""
+    return {"status": "ok", "data": _prefs.get_options()}
+
+
+@app.get("/api/v1/preferences/audit")
+def get_my_preferences_audit(
+    limit: int = 50,
+    auth: dict = Depends(require_user)
+):
+    """Recent preference changes for current user."""
+    user_id = auth.get("user_id")
+    if not user_id:
+        u = _users.get_user_by_name(auth["user"])
+        if not u:
+            raise HTTPException(404, "User not found")
+        user_id = u["id"]
+    return {"status": "ok", "data": _prefs.get_audit(user_id, limit)}
+
+
+async def _broadcast_pref_update(username: str, prefs: dict):
+    """Send preference update to all of user's WS connections."""
+    # Reuse existing broadcast if available; will be enhanced in STEP 3
+    try:
+        await broadcast({
+            "type": "preferences.updated",
+            "username": username,
+            "data": prefs
+        })
+    except Exception:
+        pass
+
+
 # ---------- Static frontend ----------
 FRONTEND_DIR = CFG["frontend"]["dir"]
 if os.path.isdir(FRONTEND_DIR):
