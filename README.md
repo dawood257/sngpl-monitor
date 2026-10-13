@@ -1,4 +1,4 @@
-# SNGLP Monitor
+# SNGPL Monitor
 
 Central: RHEL 9.8. Monitored: 5x RHEL + 5x AIX 7.2.
 Path: /ords/sngpl-monitor
