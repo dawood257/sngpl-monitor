@@ -116,3 +116,17 @@ backend/*.BEFORE_*
 FILENAME
 *.orig
 *.rej
+
+# Local test versions (not for production)
+frontend-v2/
+frontend-v2-clean/
+aurora-skin.bundle
+0001-*.patch
+frontend/*.disabled
+frontend/design-system/*.disabled
+frontend/ref-shell.js.disabled
+
+# Local backups
+data/backups/
+*.tar.gz
+*.zip

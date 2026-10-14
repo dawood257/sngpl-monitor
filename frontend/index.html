@@ -401,6 +401,10 @@ td{font-variant-numeric:tabular-nums}
 
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="alternate icon" href="/favicon.svg">
+<!-- Aurora skin (visual layer only). To go back to the classic look: delete these 3 lines,
+     or run localStorage.setItem('sngpl_skin','classic') in the browser console and reload. -->
+<script>try{if(localStorage.getItem('sngpl_skin')!=='classic')document.documentElement.setAttribute('data-skin','aurora');}catch(e){}</script>
+<link rel="stylesheet" href="/aurora.css?v=1">
 </head>
 <body>
 
