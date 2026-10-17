@@ -1,0 +1,56 @@
+/* ===== SNGPL Monitor - design tokens (Command Obsidian) ===== */
+@font-face{font-family:'IBM Plex Sans';font-weight:400;font-style:normal;font-display:swap;src:url('../fonts/ibm-plex-sans-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'IBM Plex Sans';font-weight:500;font-style:normal;font-display:swap;src:url('../fonts/ibm-plex-sans-latin-500-normal.woff2') format('woff2')}
+@font-face{font-family:'IBM Plex Sans';font-weight:600;font-style:normal;font-display:swap;src:url('../fonts/ibm-plex-sans-latin-600-normal.woff2') format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-weight:500;font-style:normal;font-display:swap;src:url('../fonts/jetbrains-mono-latin-500-normal.woff2') format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-weight:700;font-style:normal;font-display:swap;src:url('../fonts/jetbrains-mono-latin-700-normal.woff2') format('woff2')}
+
+:root{
+  --font-ui:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans','Noto Nastaliq Urdu',sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,'SF Mono',Consolas,monospace;
+
+  --canvas:#05070a; --sidebar:#080b11; --surface:#0d111a; --surface-2:#111725; --surface-3:#171f31;
+  --glass:rgba(16,21,33,.72); --line:rgba(255,255,255,.07); --line-2:rgba(255,255,255,.14);
+  --text:#e6e9f0; --text-2:#c3c9d6; --muted:#8b94a7; --faint:#5f697c;
+
+  --ok:#10b981; --warn:#f59e0b; --crit:#ef4444; --off:#64748b; --info:#38bdf8; --aix:#c084fc; --rhel:#f87171;
+  --ok-soft:rgba(16,185,129,.14); --warn-soft:rgba(245,158,11,.14); --crit-soft:rgba(239,68,68,.16); --off-soft:rgba(100,116,139,.2); --info-soft:rgba(56,189,248,.14);
+  --aix-soft:rgba(192,132,252,.15); --rhel-soft:rgba(248,113,113,.15);
+  --ok-t:#34d399; --warn-t:#fbbf24; --crit-t:#fca5a5; --off-t:#94a3b8; --info-t:#7dd3fc; --aix-t:#d8b4fe; --rhel-t:#fca5a5;
+
+  --accent:#10b981; --accent-2:#34d399; --accent-ink:#04120c; --accent-soft:rgba(16,185,129,.14);
+  --c-cpu:#10b981; --c-ram:#c084fc; --c-disk:#f59e0b; --c-load:#38bdf8;
+
+  --r-sm:8px; --r:14px; --r-lg:20px; --r-pill:999px;
+  --shadow:0 1px 0 rgba(255,255,255,.04) inset,0 12px 32px rgba(0,0,0,.38);
+  --shadow-pop:0 24px 70px rgba(0,0,0,.6);
+  --blob-1:rgba(192,132,252,.10); --blob-2:rgba(16,185,129,.07); --scrim:rgba(2,3,6,.72);
+
+  --gap:16px; --pad:20px; --sidebar-w:232px; --content-max:1720px; --topbar-h:64px;
+  --ease:cubic-bezier(.2,.8,.2,1); --dur:.18s;
+  color-scheme:dark;
+}
+[data-theme="dark"]{--canvas:#000;--sidebar:#040406;--surface:#0a0b0e;--surface-2:#0f1115;--surface-3:#15181d;--glass:rgba(11,12,15,.82);--blob-1:transparent;--blob-2:transparent}
+[data-theme="compact"]{--gap:12px;--pad:14px}
+[data-theme="clean"]{
+  --canvas:#f2f4f8; --sidebar:#ffffff; --surface:#ffffff; --surface-2:#f6f7fb; --surface-3:#eceff5;
+  --glass:rgba(255,255,255,.86); --line:rgba(15,23,42,.09); --line-2:rgba(15,23,42,.17);
+  --text:#0f172a; --text-2:#334155; --muted:#5b6578; --faint:#94a3b8;
+  --ok:#0f9d6a; --warn:#c27803; --crit:#d92d3a; --off:#6b7587; --info:#0b84c4; --aix:#7c3aed; --rhel:#c2410c;
+  --ok-soft:rgba(15,157,106,.12); --warn-soft:rgba(194,120,3,.13); --crit-soft:rgba(217,45,58,.11); --off-soft:rgba(107,117,135,.15); --info-soft:rgba(11,132,196,.12);
+  --aix-soft:rgba(124,58,237,.11); --rhel-soft:rgba(194,65,12,.11);
+  --ok-t:#0a7a52; --warn-t:#8a5600; --crit-t:#b3202c; --off-t:#4b5567; --info-t:#07669b; --aix-t:#6228c4; --rhel-t:#9a330a;
+  --accent:#0f9d6a; --accent-2:#0a7a52; --accent-ink:#ffffff; --accent-soft:rgba(15,157,106,.12);
+  --c-cpu:#0f9d6a; --c-ram:#7c3aed; --c-disk:#c27803; --c-load:#0b84c4;
+  --shadow:0 1px 2px rgba(15,23,42,.05),0 10px 28px rgba(15,23,42,.07); --shadow-pop:0 24px 70px rgba(15,23,42,.28);
+  --blob-1:rgba(124,58,237,.07); --blob-2:rgba(15,157,106,.07); --scrim:rgba(15,23,42,.45); color-scheme:light;
+}
+[data-theme="high-contrast"]{
+  --canvas:#000;--sidebar:#000;--surface:#000;--surface-2:#0b0b0b;--surface-3:#161616;--glass:#000;
+  --line:rgba(255,255,255,.55);--line-2:#fff;--text:#fff;--text-2:#fff;--muted:#e8e8e8;--faint:#cfcfcf;
+  --ok:#4ade80;--warn:#facc15;--crit:#ff7070;--off:#d4d4d4;--info:#67e8f9;--aix:#e9d5ff;--rhel:#fecaca;
+  --ok-t:#4ade80;--warn-t:#facc15;--crit-t:#ff9a9a;--off-t:#e5e5e5;--info-t:#67e8f9;--aix-t:#e9d5ff;--rhel-t:#fecaca;
+  --accent:#facc15;--accent-2:#fde047;--accent-ink:#000;--accent-soft:rgba(250,204,21,.18);--blob-1:transparent;--blob-2:transparent;--scrim:rgba(0,0,0,.85)
+}
+[data-layout="compact"]{--gap:12px;--pad:14px}
+[data-layout="wide"]{--content-max:2400px}
